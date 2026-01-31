@@ -1,0 +1,287 @@
+# Analyse de détection v1.1.4
+
+**Date:** 2026-01-30
+**Version:** ETC Collector v1.1.4
+**Score:** 26/100 (critical)
+**Findings:** 6,501 objects (19,246 instances)
+
+---
+
+## 📊 Ce qui a été injecté
+
+**Total:** 470 instances de **138 types** uniques
+
+### Breakdown par catégorie
+
+| Catégorie | Nombre de types |
+|-----------|-----------------|
+| Computers | 27 |
+| Accounts | 25 |
+| Advanced | 22 |
+| Permissions | 15 |
+| Passwords | 14 |
+| Kerberos | 12 |
+| ADCS | 11 |
+| Groups | 11 |
+| GPO | 9 |
+| Attack Paths | 7 |
+| Excessive Privileges | 8 |
+| Others | 5 |
+
+---
+
+## ✅ Ce que v1.1.4 a détecté
+
+**Total:** 52/138 types = **37.7%**
+
+### Liste complète des types détectés
+
+1. ACCOUNT_OPERATORS_MEMBER
+2. ACL_FORCECHANGEPASSWORD
+3. ADMINSDHOLDER_BACKDOOR
+4. BACKUP_OPERATORS_MEMBER
+5. BUILTIN_MODIFIED
+6. COMPUTER_IN_ADMIN_GROUP
+7. COMPUTER_NEVER_LOGGED_ON
+8. COMPUTER_NO_BITLOCKER
+9. COMPUTER_NO_LAPS
+10. COMPUTER_OS_OBSOLETE_2003
+11. COMPUTER_OS_OBSOLETE_2008
+12. COMPUTER_OS_OBSOLETE_VISTA
+13. COMPUTER_OS_OBSOLETE_XP
+14. COMPUTER_UNCONSTRAINED_DELEGATION
+15. COMPUTER_WEAK_ENCRYPTION
+16. COMPUTER_WITH_SPNS
+17. COMPUTER_WRONG_OU
+18. DANGEROUS_GROUP_NESTING
+19. DISABLED_ACCOUNT_IN_ADMIN_GROUP
+20. DNS_ADMINS_MEMBER
+21. DOMAIN_ADMIN_IN_DESCRIPTION
+22. ESC10_WEAK_CERTIFICATE_MAPPING
+23. ESC11_ICERT_REQUEST_ENFORCEMENT
+24. ESC3_ENROLLMENT_AGENT
+25. ESC4_VULNERABLE_TEMPLATE_ACL
+26. ESC5_PKI_OBJECT_ACL
+27. ESC7_CA_VULNERABLE_ACL
+28. ESC8_HTTP_ENROLLMENT
+29. ESC9_NO_SECURITY_EXTENSION
+30. EVERYONE_IN_ACL
+31. EXPIRED_ACCOUNT_IN_ADMIN_GROUP
+32. GROUP_PROTECTED_USERS_EMPTY
+33. NOT_IN_PROTECTED_USERS
+34. NTLM_RELAY_OPPORTUNITY
+35. OVERSIZED_GROUP_HIGH
+36. PRINT_OPERATORS_MEMBER
+37. RECYCLE_BIN_DISABLED
+38. SENSITIVE_DELEGATION
+39. SERVER_OPERATORS_MEMBER
+40. SERVICE_ACCOUNT_INTERACTIVE
+41. SERVICE_ACCOUNT_NAMING
+42. SERVICE_ACCOUNT_NO_PREAUTH
+43. SERVICE_ACCOUNT_OLD_PASSWORD
+44. SERVICE_ACCOUNT_PRIVILEGED
+45. SERVICE_ACCOUNT_WEAK_ENCRYPTION
+46. SERVICE_ACCOUNT_WITH_SPN
+47. SHARED_ACCOUNT
+48. SMARTCARD_NOT_REQUIRED
+49. TEST_ACCOUNT
+50. WEAK_ENCRYPTION_FLAG
+51. WEAK_PASSWORD_POLICY
+52. WRITESPN_ABUSE
+
+### Par catégorie
+
+| Catégorie | Détectés/Injectés | Taux |
+|-----------|-------------------|------|
+| **ADCS** | 10/11 | **91%** ✅ |
+| **Groups** | 8/11 | 73% |
+| **Permissions** | 9/15 | 60% |
+| **Kerberos** | 7/12 | 58% |
+| **Accounts** | 13/25 | 52% |
+| **Computers** | 13/27 | 48% |
+| **Advanced** | 9/22 | 41% |
+| **Passwords** | 3/14 | 21% |
+| **GPO** | 1/9 | **11%** ⚠️ |
+| **Attack Paths** | 0/7 | **0%** ❌ |
+| **Excessive Privileges** | 0/8 | **0%** ❌ |
+
+---
+
+## ❌ Ce qui n'est PAS détecté
+
+**Total:** 86/138 types = **62.3%**
+
+### ACL/Permissions (8 types non détectés)
+
+- ACL_ADDMEMBER (5 instances injectées)
+- ACL_DCSYNC
+- ACL_GENERICALL_DA
+- ACL_GENERICWRITE_SENSITIVEGROUP (5 instances)
+- ACL_GENERICWRITE_USER (5 instances)
+- ACL_WRITEDACL_OU (5 instances)
+- ACL_WRITEDACL_SENSITIVEGROUP
+- ACL_WRITEOWNER_SENSITIVEGROUP
+
+### Computers (14 types non détectés)
+
+- COMPUTER_ACL_GENERICALL
+- COMPUTER_DISABLED_NOT_DELETED (16 instances)
+- COMPUTER_DUPLICATE_SPN (17 instances)
+- COMPUTER_LEGACY_PROTOCOL_SMBV1
+- COMPUTER_LOCAL_ADMIN_MAPPING
+- COMPUTER_OLD_PASSWORD (17 instances) ⚠️
+- COMPUTER_PRE_CREATED (15 instances) ⚠️
+- COMPUTER_PRE_WIN2000 (17 instances)
+- COMPUTER_RBCD
+- COMPUTER_SENSITIVE_DESCRIPTION (16 instances)
+- COMPUTER_SMB_SIGNING_DISABLED
+- COMPUTER_STALE_INACTIVE (17 instances) ⚠️
+- COMPUTER_WEAK_LAPS
+- DUPLICATE_SPN
+
+### Passwords (4 types non détectés)
+
+- EMPTY_PASSWORD
+- PASSWORDINDESCRIPTION
+- PASSWORDNEVEREXPIRES (39 instances) ⚠️
+- REVERSIBLEENCRYPTION
+
+### Kerberos (4 types non détectés)
+
+- ASREPROASTABLE (15 instances) ⚠️
+- KERBEROASTABLE
+- KERBEROASTABLE_WEAKPASSWORD
+- UNCONSTRAINEDDELEGATION (15 instances) ⚠️
+
+### Accounts (11 types non détectés)
+
+- ADMIN_SD_HOLDER_MODIFIED
+- ADMINCOUNT_ORPHANED
+- DISABLEDACCOUNTINPRIVGROUP (15 instances)
+- FOREIGN_SECURITY_PRINCIPALS
+- NOTINPROTECTEDUSERS (15 instances)
+- ORPHANED_ACES
+- SEENABLEDELEGATIONPRIVILEGE
+- SHADOW_CREDENTIALS
+- SIDHISTORY
+- STALEACCOUNT
+- SUSPICIOUSACCOUNTNAME
+
+### Groups (3 types non détectés)
+
+- GPO_CREATOR_OWNERS_MEMBER (5 instances)
+- OVERSIZED_GROUP_CRITICAL
+- ULTRA_VULNERABLE_USER (20 instances) ⚠️
+
+### GPO (4 types non détectés)
+
+- GPO_AUTHENTICATED_USERS_APPLY (5 instances)
+- GPO_LINKPOISONING
+- GPO_NO_SECURITY_FILTERING (5 instances)
+- GPO_PASSWORD_IN_SYSVOL
+
+### Advanced/Config (10 types non détectés)
+
+- ANONYMOUS_LDAP_ACCESS
+- AUDIT_POLICY_WEAK
+- AUTHENTICATED_USERS_IN_ACLS
+- DANGEROUS_LOGON_SCRIPT
+- LAPS_PASSWORD_LEAKED
+- LAPS_PASSWORDREAD
+- LDAP_CHANNEL_BINDING_DISABLED
+- POWERSHELL_LOGGING_DISABLED
+- SERVER_NO_ADMIN_GROUP
+- SMB_V1_ENABLED
+
+### Excessive Privileges (7 types non détectés)
+
+- EXCESSIVEPRIVILEGES_AO (5 instances)
+- EXCESSIVEPRIVILEGES_BO (5 instances)
+- EXCESSIVEPRIVILEGES_DA (5 instances)
+- EXCESSIVEPRIVILEGES_DNS (5 instances)
+- EXCESSIVEPRIVILEGES_ENTERPRISEADMIN (5 instances)
+- EXCESSIVEPRIVILEGES_PRINTOPS (5 instances)
+- EXCESSIVEPRIVILEGES_RDP (5 instances)
+
+### Attack Paths (7 types non détectés)
+
+- PATH_ASREP_TO_ADMIN
+- PATH_CERTIFICATE_ESC
+- PATH_DELEGATION_CHAIN
+- PATH_GPO_TO_DA
+- PATH_NESTED_ADMIN
+- PATH_SERVICE_TO_DA
+- PATH_TRUST_LATERAL
+
+### Others (14 types non détectés)
+
+- CONSTRAINEDDELEGATION (15 instances)
+- DCSYNC_RIGHTS
+- ESC1_VULNERABLE_CERTIFICATE_TEMPLATE
+- ESC2_ANY_PURPOSE_EKU
+- EXCESSIVEPRIVILEGES_SCHEMAADMIN
+- NESTEDGROUPPATH
+- PASSWORDNOTREQUIRED
+- SUSPICIOUSSIDPROPERTIES
+- UNIXUSERPASSWORD_CLEAR
+- USER_CANNOT_CHANGE_PASSWORD
+- WEAK_ENCRYPTION_RC4_WITH_AES
+
+---
+
+## 🎯 Priorités d'amélioration
+
+### Critique (0% détection)
+
+1. **Attack Paths (0/7)**
+   - PATH_GPO_TO_DA
+   - PATH_SERVICE_TO_DA
+   - PATH_ASREP_TO_ADMIN
+   - PATH_NESTED_ADMIN
+   - PATH_DELEGATION_CHAIN
+   - PATH_CERTIFICATE_ESC
+   - PATH_TRUST_LATERAL
+
+2. **Excessive Privileges (0/7)**
+   - Tous les types EXCESSIVEPRIVILEGES_*
+
+### Haute priorité (11% détection)
+
+3. **GPO (1/9)**
+   - GPO_PASSWORD_IN_SYSVOL
+   - GPO_AUTHENTICATED_USERS_APPLY
+   - GPO_NO_SECURITY_FILTERING
+   - GPO_LINKPOISONING
+
+### Moyenne priorité (48% détection)
+
+4. **Computers (13/27)**
+   - COMPUTER_OLD_PASSWORD (17 instances)
+   - COMPUTER_STALE_INACTIVE (17 instances)
+   - COMPUTER_PRE_CREATED (15 instances)
+   - COMPUTER_DUPLICATE_SPN (17 instances)
+   - COMPUTER_DISABLED_NOT_DELETED (16 instances)
+
+### Basse priorité (21% détection)
+
+5. **Passwords (3/14)**
+   - PASSWORDNEVEREXPIRES (39 instances)
+   - EMPTY_PASSWORD
+   - PASSWORDINDESCRIPTION
+
+---
+
+## 📈 Résumé
+
+| Métrique | Valeur |
+|----------|--------|
+| **Taux de détection global** | 37.7% (52/138) |
+| **Types détectés** | 52 |
+| **Types non détectés** | 86 |
+| **Meilleure catégorie** | ADCS (91%) |
+| **Pire catégorie** | Attack Paths (0%) |
+
+---
+
+**Généré le:** 2026-01-30
+**Source:** audit-v1.1.4.json + GlobalCorp_Vulnerabilities_20260130_174331.csv
