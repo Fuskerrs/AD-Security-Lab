@@ -1,0 +1,113 @@
+# Vulnérabilités injectées mais NON TROUVÉES dans l'AD
+
+## CONFIRMÉES NON PRÉSENTES (3)
+
+Ces vulnérabilités ont été injectées par le script mais ne sont PAS dans l'AD:
+
+1. Computer_Duplicate_SPN (injecté: 1, trouvé: 0)
+2. Computer_Old_Password (injecté: 17, trouvé: 0)
+3. Computer_Pre_Win2000 (injecté: 1, trouvé: 0)
+
+## BESOIN DE VÉRIFICATION MANUELLE
+
+Ces types n'ont pas pu être vérifiés automatiquement et nécessitent une inspection manuelle:
+
+=== ACL/Permissions (11 types) ===
+- ACL_ADDMEMBER (5 instances)
+- ACL_DCSYNC (2 instances)
+- ACL_GENERICALL_DA (3 instances)
+- ACL_GENERICWRITE_SENSITIVEGROUP (3 instances)
+- ACL_GENERICWRITE_USER (5 instances)
+- ACL_WRITEDACL_OU (5 instances)
+- ACL_WRITEDACL_SENSITIVEGROUP (3 instances)
+- ACL_WRITEOWNER_SENSITIVEGROUP (3 instances)
+- NESTEDGROUPPATH (5 instances)
+- ORPHANED_ACES (1 instance)
+
+=== Attack Paths (7 types) ===
+- PATH_ASREP_TO_ADMIN (1 instance)
+- PATH_CERTIFICATE_ESC (1 instance)
+- PATH_DELEGATION_CHAIN (1 instance)
+- PATH_GPO_TO_DA (1 instance)
+- PATH_NESTED_ADMIN (1 instance)
+- PATH_SERVICE_TO_DA (1 instance)
+- PATH_TRUST_LATERAL (1 instance)
+
+=== ADCS (11 types) ===
+- ESC1_VULNERABLE_CERTIFICATE_TEMPLATE (1 instance)
+- ESC2_ANY_PURPOSE_EKU (1 instance)
+- ESC3_ENROLLMENT_AGENT (1 instance)
+- ESC4_VULNERABLE_TEMPLATE_ACL (1 instance)
+- ESC5_PKI_OBJECT_ACL (1 instance)
+- ESC7_CA_VULNERABLE_ACL (1 instance)
+- ESC8_HTTP_ENROLLMENT (1 instance)
+- ESC9_NO_SECURITY_EXTENSION (1 instance)
+- ESC10_WEAK_CERTIFICATE_MAPPING (1 instance)
+- ESC11_ICERT_REQUEST_ENFORCEMENT (1 instance)
+
+=== Computers ===
+- Computer_ACL_GenericAll (2 instances)
+- Computer_Local_Admin_Mapping (8 instances)
+- Computer_No_LAPS (16 instances) - LAPS pas déployé
+- Computer_Pre_Created (15 instances)
+- Computer_RBCD (3 instances)
+- Computer_Weak_LAPS (6 instances)
+- COMPUTER_LEGACY_PROTOCOL_SMBV1 (15 instances)
+- COMPUTER_SMB_Signing_Disabled (11 instances)
+- Duplicate_SPN (1 instance)
+
+=== Passwords ===
+- Empty_Password (1 instance)
+
+=== Advanced ===
+- ADMIN_SD_HOLDER_MODIFIED (1 instance)
+- ANONYMOUS_LDAP_ACCESS (1 instance)
+- AUDIT_POLICY_WEAK (1 instance)
+- AUTHENTICATED_USERS_IN_ACLS (1 instance)
+- LDAP_CHANNEL_BINDING_DISABLED (1 instance)
+- LAPS_PASSWORD_LEAKED (1 instance)
+- LAPS_PASSWORDREAD (3 instances)
+- POWERSHELL_LOGGING_DISABLED (1 instance)
+- SERVER_NO_ADMIN_GROUP (4 instances)
+- SMB_V1_ENABLED (1 instance)
+
+=== Accounts ===
+- ADMINCOUNT_ORPHANED (5 instances)
+- DISABLEDACCOUNTINPRIVGROUP (3 instances)
+- FOREIGN_SECURITY_PRINCIPALS (1 instance)
+- SEENABLEDELEGATIONPRIVILEGE (2 instances)
+- SHADOW_CREDENTIALS (1 instance)
+- SIDHISTORY (2 instances)
+- STALEACCOUNT (10 instances)
+- SUSPICIOUSACCOUNTNAME (5 instances)
+- SUSPICIOUSSIDPROPERTIES (1 instance)
+- USER_CANNOT_CHANGE_PASSWORD (4 instances)
+
+=== Excessive Privileges (7 types) ===
+- EXCESSIVEPRIVILEGES_AO (2 instances)
+- EXCESSIVEPRIVILEGES_BO (2 instances)
+- EXCESSIVEPRIVILEGES_DA (3 instances)
+- EXCESSIVEPRIVILEGES_DNS (2 instances)
+- EXCESSIVEPRIVILEGES_ENTERPRISEADMIN (1 instance)
+- EXCESSIVEPRIVILEGES_PRINTOPS (2 instances)
+- EXCESSIVEPRIVILEGES_RDP (3 instances)
+- EXCESSIVEPRIVILEGES_SCHEMAADMIN (1 instance)
+
+=== GPO ===
+- GPO_AUTHENTICATED_USERS_APPLY (1 instance)
+- GPO_LINKPOISONING (2 instances)
+- GPO_NO_SECURITY_FILTERING (1 instance)
+
+=== Groups ===
+- GPO_CREATOR_OWNERS_MEMBER (1 instance)
+- OVERSIZED_GROUP_CRITICAL (1 instance)
+- ULTRA_VULNERABLE_USER (20 instances)
+
+---
+
+TOTAL TYPES À VÉRIFIER MANUELLEMENT: ~80-90 types
+
+RECOMMANDATION:
+1. Corriger le script d'injection pour Computer_Duplicate_SPN, Computer_Old_Password, Computer_Pre_Win2000
+2. Vérifier manuellement les ACL, Attack Paths, ADCS
+3. Ne compter que les vulnérabilités CONFIRMÉES dans l'AD pour le benchmark
