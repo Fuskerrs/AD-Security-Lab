@@ -1,0 +1,136 @@
+================================================================================
+  AD SECURITY LAB - START HERE
+================================================================================
+
+Bienvenue dans ton nouveau dossier de travail AD Security Lab !
+
+📍 EMPLACEMENT
+  C:\AD-Security-Lab\
+
+📦 CE QUI A ÉTÉ CRÉÉ
+  ✅ Structure propre et professionnelle
+  ✅ Scripts essentiels uniquement (pas de doublons)
+  ✅ Documentation complète en français/anglais
+  ✅ 3 exemples prêts à l'emploi
+  ✅ 12 fichiers au total (~396 KB)
+
+🚀 DÉMARRAGE RAPIDE (3 ÉTAPES)
+
+  1️⃣ Ouvre la documentation
+     start Documentation\QUICK-START.md
+
+  2️⃣ Lance un lab de test
+     cd Examples
+     .\example-standard-lab.ps1
+     
+     OU directement:
+     cd Scripts
+     .\Populate-AD-GlobalCorp.ps1 -TotalUsers 1000 -TotalComputers 100 -DefaultPassword "Welcome2024!" -Confirm
+
+  3️⃣ C'est tout ! 
+     Ton AD vulnérable est créé en 5-20 minutes
+
+📁 STRUCTURE DU DOSSIER
+
+  Scripts/          → Scripts PowerShell principaux
+    ├─ Populate-AD-GlobalCorp.ps1  (script principal 277 KB)
+    └─ Delete-GlobalCorp.ps1        (nettoyage)
+
+  Documentation/    → Toute la doc au même endroit
+    ├─ QUICK-START.md      (⭐ COMMENCE ICI)
+    ├─ DETECTION-GUIDE.md  (commandes PowerShell)
+    ├─ VULNERABILITIES.md  (catalogue 120+ vulns)
+    ├─ README.md           (doc complète)
+    └─ CHANGELOG.md        (historique)
+
+  Examples/         → Exemples prêts à exécuter
+    ├─ example-small-lab.ps1       (1K users, 5 min)
+    ├─ example-standard-lab.ps1    (12K users, 20 min) ⭐ RECOMMANDÉ
+    └─ example-enterprise-lab.ps1  (50K users, 90 min)
+
+  Reports/          → Rapports auto-générés
+    └─ (vide au départ, se remplit automatiquement)
+
+  Tools/            → Outils futurs
+    └─ (à venir)
+
+💡 COMMANDES UTILES
+
+  # Lancer un lab standard (recommandé)
+  cd C:\AD-Security-Lab\Examples
+  .\example-standard-lab.ps1
+
+  # Nettoyer tout
+  cd C:\AD-Security-Lab\Scripts
+  .\Delete-GlobalCorp.ps1
+
+  # Voir la doc
+  start C:\AD-Security-Lab\README.md
+  start C:\AD-Security-Lab\INDEX.txt
+
+  # Tester les vulnérabilités
+  # Voir: Documentation\DETECTION-GUIDE.md
+
+🎯 CE QUI EST INCLUS
+
+  ✅ 120+ types de vulnérabilités
+     - ADCS (ESC1-11)
+     - Kerberos (AS-REP, Kerberoasting)
+     - Privilege Escalation (ACLs, Groups)
+     - GPO Attacks (MS14-025)
+     - Exchange PrivExchange (CVE-2019-1166)
+     - Service Accounts
+     - Computer vulnerabilities
+     - Attack Paths (10 chemins complets)
+
+  ✅ Documentation complète
+     - Guide démarrage rapide
+     - Commandes de détection PowerShell
+     - Catalogue de vulnérabilités
+     - Exemples prêts à l'emploi
+
+  ✅ Structure professionnelle
+     - Organisation claire
+     - Pas de doublons
+     - Facile à naviguer
+     - Prêt pour Git
+
+📊 OPTIONS DE LAB
+
+  Small:      1,000 users   →  5 minutes   (tests rapides)
+  Standard:  12,000 users   → 20 minutes   ⭐ RECOMMANDÉ
+  Enterprise: 50,000 users  → 90 minutes   (benchmarks)
+
+🔥 PROCHAINES ÉTAPES
+
+  1. Lis QUICK-START.md (5 min de lecture)
+  2. Lance example-standard-lab.ps1
+  3. Attends 20 minutes
+  4. Teste tes outils de sécu (BloodHound, PingCastle, etc.)
+  5. Utilise DETECTION-GUIDE.md pour détecter les vulns
+  6. Nettoie avec Delete-GlobalCorp.ps1
+  7. Recommence avec un autre lab !
+
+📞 BESOIN D'AIDE ?
+
+  INDEX.txt          → Vue d'ensemble du dossier
+  README.md          → Documentation principale
+  QUICK-START.md     → Guide de démarrage
+  DETECTION-GUIDE.md → Commandes de détection
+
+⚠️  RAPPEL: UNIQUEMENT POUR ENVIRONNEMENTS DE LAB
+    ❌ JAMAIS EN PRODUCTION
+
+================================================================================
+Créé par: Claude Code (Anthropic) & Fuskerrs
+Version: 4.1.0
+Date: January 2026
+================================================================================
+
+PRÊT À COMMENCER ?
+
+1. Ouvre:  Documentation\QUICK-START.md
+2. Lance:  Examples\example-standard-lab.ps1
+3. Teste:  Tes outils de sécurité !
+
+Bon test ! 🚀🔐

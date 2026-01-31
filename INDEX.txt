@@ -1,0 +1,121 @@
+================================================================================
+AD SECURITY LAB - DIRECTORY INDEX
+================================================================================
+
+📁 C:\AD-Security-Lab\
+
+🎯 START HERE
+└── README.md                                   Main documentation and overview
+
+📂 SCRIPTS (Core functionality)
+├── Scripts\
+│   ├── Populate-AD-GlobalCorp.ps1              ⭐ Main script (277 KB, 120+ vulns)
+│   └── Delete-GlobalCorp.ps1                   Cleanup script
+
+📚 DOCUMENTATION (Complete guides)
+├── Documentation\
+│   ├── QUICK-START.md                          ⭐ 5-minute setup guide (READ THIS FIRST)
+│   ├── DETECTION-GUIDE.md                      PowerShell detection commands
+│   ├── VULNERABILITIES.md                      Complete vulnerability catalog
+│   ├── README.md                               Full feature documentation
+│   └── CHANGELOG.md                            Version history
+
+💡 EXAMPLES (Ready-to-run)
+├── Examples\
+│   ├── example-small-lab.ps1                   1K users, 5 min
+│   ├── example-standard-lab.ps1                ⭐ 12K users, 20 min (RECOMMENDED)
+│   └── example-enterprise-lab.ps1              50K users, 90 min
+
+📊 REPORTS (Auto-generated)
+├── Reports\
+│   └── .gitkeep                                Reports created here at runtime
+
+🔧 TOOLS (Future utilities)
+└── Tools\
+    └── (coming soon)
+
+================================================================================
+QUICK START COMMANDS
+================================================================================
+
+# Option 1: Run example script (easiest)
+cd C:\AD-Security-Lab\Examples
+.\example-standard-lab.ps1
+
+# Option 2: Direct execution
+cd C:\AD-Security-Lab\Scripts
+.\Populate-AD-GlobalCorp.ps1 -TotalUsers 12000 -TotalComputers 1000 -DefaultPassword "Welcome2024!" -Confirm
+
+# Cleanup
+.\Scripts\Delete-GlobalCorp.ps1
+
+# View documentation
+start Documentation\README.md
+start Documentation\QUICK-START.md
+
+================================================================================
+FILE SIZES & INFO
+================================================================================
+
+Populate-AD-GlobalCorp.ps1      277 KB    Main script, 120+ vulnerability types
+Delete-GlobalCorp.ps1           1 KB      Cleanup script
+README.md                       ~25 KB    Main documentation
+QUICK-START.md                  ~8 KB     Setup guide
+DETECTION-GUIDE.md              ~30 KB    Detection commands
+VULNERABILITIES.md              ~40 KB    Vulnerability catalog
+
+Total size: ~400 KB (scripts + docs)
+Reports size: Varies (50 MB - 3 GB depending on lab size)
+
+================================================================================
+WHAT'S INCLUDED
+================================================================================
+
+✅ 120+ Vulnerability Types
+   - ADCS (ESC1-11)
+   - Kerberos attacks
+   - Privilege escalation
+   - GPO attacks
+   - Computer vulnerabilities
+   - Service accounts
+   - Attack paths
+
+✅ Complete Documentation
+   - Quick start guide
+   - Detection commands
+   - Full vulnerability catalog
+   - Ready-to-run examples
+
+✅ Professional Structure
+   - Clean organization
+   - No duplicates
+   - Easy navigation
+   - Git-ready
+
+================================================================================
+RECOMMENDED WORKFLOW
+================================================================================
+
+1. Read: Documentation\QUICK-START.md
+2. Run:  Examples\example-standard-lab.ps1
+3. Test: Your security tools (BloodHound, PingCastle, etc.)
+4. Detect: Use Documentation\DETECTION-GUIDE.md
+5. Clean: Scripts\Delete-GlobalCorp.ps1
+6. Repeat: Try different lab sizes
+
+================================================================================
+SUPPORT
+================================================================================
+
+Documentation:  See Documentation\ folder
+Examples:       See Examples\ folder
+Questions:      Review README.md and QUICK-START.md
+Issues:         Check CHANGELOG.md for known issues
+
+Target Domain:  aza-me.cc
+Default Password: Welcome2024!
+Version:        4.1.0 (January 2026)
+
+================================================================================
+⚠️  WARNING: FOR LAB ENVIRONMENTS ONLY - NEVER USE IN PRODUCTION  ⚠️
+================================================================================
