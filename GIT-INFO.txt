@@ -1,0 +1,118 @@
+================================================================================
+  GIT REPOSITORY INFORMATION
+================================================================================
+
+📍 LOCAL REPOSITORY
+   Location: C:\AD-Security-Lab\
+   Branch:   main
+   Commit:   a086189 "Initial commit - AD Security Lab v4.1.0"
+
+🌐 GITHUB REPOSITORY
+   URL:      https://github.com/Fuskerrs/AD-Security-Lab
+   Status:   ✅ PUSHED SUCCESSFULLY
+   Files:    15 files (8252 lines)
+
+📊 REPOSITORY CONTENTS
+
+   ✅ Scripts/                    (2 files)
+      - Populate-AD-GlobalCorp.ps1  (277 KB)
+      - Delete-GlobalCorp.ps1
+
+   ✅ Documentation/              (5 files)
+      - QUICK-START.md
+      - DETECTION-GUIDE.md
+      - VULNERABILITIES.md
+      - README.md
+      - CHANGELOG.md
+
+   ✅ Examples/                   (3 files)
+      - example-small-lab.ps1
+      - example-standard-lab.ps1
+      - example-enterprise-lab.ps1
+
+   ✅ Root files
+      - START-HERE.txt
+      - INDEX.txt
+      - README.md
+      - .gitignore
+
+================================================================================
+GIT COMMANDS
+================================================================================
+
+# View repository on GitHub
+start https://github.com/Fuskerrs/AD-Security-Lab
+
+# Check status
+cd C:\AD-Security-Lab
+git status
+
+# Pull latest changes
+git pull
+
+# Make changes and push
+git add .
+git commit -m "Your commit message"
+git push
+
+# View commit history
+git log --oneline -10
+
+# View remote
+git remote -v
+
+================================================================================
+FUTURE UPDATES
+================================================================================
+
+When you make changes to the scripts or documentation:
+
+1. Edit files in C:\AD-Security-Lab\
+2. Stage changes:    git add .
+3. Commit:           git commit -m "Description of changes"
+4. Push to GitHub:   git push
+
+Git will remember your credentials for future pushes.
+
+================================================================================
+VERSION INFO
+================================================================================
+
+Initial Version: 4.1.0
+Date Created:    January 30, 2026
+Commit Hash:     a086189
+Total Files:     15 files
+Total Lines:     8,252 insertions
+
+================================================================================
+REPOSITORY VISIBILITY
+================================================================================
+
+Visibility: PUBLIC
+Anyone can:
+  - View the repository
+  - Clone the code
+  - Download releases
+
+Only you can:
+  - Push changes
+  - Create releases
+  - Manage settings
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. ✅ Repository created and pushed to GitHub
+2. ✅ All files committed
+3. → Visit: https://github.com/Fuskerrs/AD-Security-Lab
+4. → Consider adding:
+   - GitHub Topics (tags): active-directory, security, pentest, lab
+   - GitHub Description: Complete it on the web interface
+   - README badges (they're already in README.md)
+
+================================================================================
+Created: January 30, 2026
+Last Push: January 30, 2026
+Status: ✅ All files successfully pushed to GitHub
+================================================================================
