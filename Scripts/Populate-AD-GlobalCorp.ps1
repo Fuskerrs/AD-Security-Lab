@@ -374,7 +374,7 @@ function New-ADOUIfNotExists {
         $script:Config.CreatedOUs += $ouDN
         return $ouDN
     } catch {
-        Write-Log "Error creation OU $ouDN : $_" "ERROR"
+        Write-Log "Error creation OU $ouDN  - error" "ERROR"
         $script:Config.Errors += "OU: $ouDN - $_"
         return $null
     }
@@ -413,7 +413,7 @@ function New-ADGroupIfNotExists {
         }
         return $group.DistinguishedName
     } catch {
-        Write-Log "Error creation group $Name : $_" "ERROR"
+        Write-Log "Error creation group $Name  - error" "ERROR"
         $script:Config.Errors += "Group: $Name - $_"
         return $null
     }
@@ -784,7 +784,7 @@ function New-GlobalCorpUsers {
                     }
 
                 } catch {
-                    Write-Log "Error creation user $sam : $_" "ERROR"
+                    Write-Log "Error creation user $sam  - error" "ERROR"
                     $script:Config.Errors += "User: $sam - $_"
                 }
             }
@@ -873,7 +873,7 @@ function Set-ManagerHierarchy {
                 Set-ADUser -Identity $exec.SamAccountName -Manager $ceo.SamAccountName -ErrorAction Stop
                 $execCount++
             } catch {
-                Write-Log "Error assignation manager for $($exec.SamAccountName): $_" "WARNING"
+                Write-Log "Error assignation manager for $($exec.SamAccountName) - error" "WARNING"
             }
         }
     }
@@ -893,7 +893,7 @@ function Set-ManagerHierarchy {
                 Set-ADUser -Identity $manager.SamAccountName -Manager $exec.SamAccountName -ErrorAction Stop
                 $mgrCount++
             } catch {
-                Write-Log "Error assignation manager for $($manager.SamAccountName): $_" "WARNING"
+                Write-Log "Error assignation manager for $($manager.SamAccountName) - error" "WARNING"
             }
         }
     }
@@ -910,7 +910,7 @@ function Set-ManagerHierarchy {
                 Set-ADUser -Identity $tl.SamAccountName -Manager $managerSam -ErrorAction Stop
                 $tlCount++
             } catch {
-                Write-Log "Error assignation manager for $($tl.SamAccountName): $_" "WARNING"
+                Write-Log "Error assignation manager for $($tl.SamAccountName) - error" "WARNING"
             }
         }
     }
@@ -1014,7 +1014,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "PasswordNeverExpires"
         } catch {
-            Write-Log "Error PasswordNeverExpires for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error PasswordNeverExpires for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1040,7 +1040,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "PasswordNotRequired"
         } catch {
-            Write-Log "Error PasswordNotRequired for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error PasswordNotRequired for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1067,7 +1067,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "ReversibleEncryption"
         } catch {
-            Write-Log "Error ReversibleEncryption for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ReversibleEncryption for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1093,7 +1093,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "ASREPRoastable"
         } catch {
-            Write-Log "Error DoesNotRequirePreAuth for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error DoesNotRequirePreAuth for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1124,7 +1124,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Kerberoastable"
         } catch {
-            Write-Log "Error SPN for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error SPN for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1150,7 +1150,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "UnconstrainedDelegation"
         } catch {
-            Write-Log "Error Unconstrained Delegation for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Unconstrained Delegation for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1185,7 +1185,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "ConstrainedDelegation"
         } catch {
-            Write-Log "Error Constrained Delegation for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Constrained Delegation for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1211,7 +1211,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "DomainAdmin"
         } catch {
-            Write-Log "Error ajout Domain Admins for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ajout Domain Admins for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1323,7 +1323,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "PasswordInDescription"
         } catch {
-            Write-Log "Error description password for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error description password for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1357,7 +1357,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "DisabledInPrivGroup"
         } catch {
-            Write-Log "Error disabled admin for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error disabled admin for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1407,7 +1407,7 @@ function Add-SecurityVulnerabilities {
                 Detection = "Get-ADUser -Filter {SamAccountName -like '*admin*' -or SamAccountName -like '*test*' -or SamAccountName -like '*tmp*' -or SamAccountName -like '*svc_*'}"
             }
         } catch {
-            Write-Log "Error creation compte suspect $($suspect.Sam): $_" "ERROR"
+            Write-Log "Error creation compte suspect $($suspect.Sam) - error" "ERROR"
         }
     }
 
@@ -1572,7 +1572,7 @@ function Add-SecurityVulnerabilities {
             }
 
         } catch {
-            Write-Log "Error creating service account $svcSamAccount: $_" "ERROR"
+            Write-Log "Error creating service account $svcSamAccount - error" "ERROR"
         }
     }
 
@@ -1611,7 +1611,7 @@ function Add-SecurityVulnerabilities {
             $cu.VulnType += "NestedGroupDA"
         }
     } catch {
-        Write-Log "Error creation chaine de groups: $_" "ERROR"
+        Write-Log "Error creation chaine de groups - error" "ERROR"
     }
 
     # =========================================================================
@@ -1706,7 +1706,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "AdminCountOrphaned"
         } catch {
-            Write-Log "Error AdminCount for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error AdminCount for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1735,7 +1735,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "SIDHistory"
         } catch {
-            Write-Log "Error SID History for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error SID History for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1843,7 +1843,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "WeakSPNPassword"
         } catch {
-            Write-Log "Error Weak SPN for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Weak SPN for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -1886,12 +1886,12 @@ function Add-SecurityVulnerabilities {
                     $user.Vulnerable = $true
                     $user.VulnType += "GPOLinkPoisoning"
                 } catch {
-                    Write-Log "Error GPO Link Poisoning for $($user.SamAccountName): $_" "ERROR"
+                    Write-Log "Error GPO Link Poisoning for $($user.SamAccountName) - error" "ERROR"
                 }
             }
         }
     } catch {
-        Write-Log "Error GPO Linking section: $_" "ERROR"
+        Write-Log "Error GPO Linking section - error" "ERROR"
     }
 
     # =========================================================================
@@ -2008,7 +2008,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "UnixPasswordClear"
         } catch {
-            Write-Log "Error unixUserPassword for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error unixUserPassword for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2052,12 +2052,12 @@ function Add-SecurityVulnerabilities {
                     $user.Vulnerable = $true
                     $user.VulnType += "RBCD_Abuse"
                 } catch {
-                    Write-Log "Error RBCD for $($user.SamAccountName): $_" "ERROR"
+                    Write-Log "Error RBCD for $($user.SamAccountName) - error" "ERROR"
                 }
             }
         }
     } catch {
-        Write-Log "Error RBCD Abuse section: $_" "ERROR"
+        Write-Log "Error RBCD Abuse section - error" "ERROR"
     }
 
     # =========================================================================
@@ -2090,7 +2090,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "PrimaryGroupIDSpoofing"
         } catch {
-            Write-Log "Error Primary Group ID Spoofing for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Primary Group ID Spoofing for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2126,7 +2126,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "AdminSDHolderBackdoor"
         } catch {
-            Write-Log "Error AdminSDHolder Backdoor for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error AdminSDHolder Backdoor for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2149,7 +2149,7 @@ function Add-SecurityVulnerabilities {
             Detection = "Get-ADGroupMember 'Pre-Windows 2000 Compatible Access' | Where-Object {`$_.SamAccountName -eq 'Everyone'}"
         }
     } catch {
-        Write-Log "Error Pre-Windows 2000 Access Abuse: $_" "ERROR"
+        Write-Log "Error Pre-Windows 2000 Access Abuse - error" "ERROR"
     }
 
     # =========================================================================
@@ -2232,7 +2232,7 @@ function Add-SecurityVulnerabilities {
                 $user.Vulnerable = $true
                 $user.VulnType += "Shadow_Credentials"
             } catch {
-                Write-Log "Error Shadow Credentials for $($user.SamAccountName): $_" "ERROR"
+                Write-Log "Error Shadow Credentials for $($user.SamAccountName) - error" "ERROR"
             }
         }
     }
@@ -2260,7 +2260,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "DNS_Admins_Member"
         } catch {
-            Write-Log "Error DNS Admins for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error DNS Admins for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2287,7 +2287,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Backup_Operators_Member"
         } catch {
-            Write-Log "Error Backup Operators for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Backup Operators for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2314,7 +2314,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Account_Operators_Member"
         } catch {
-            Write-Log "Error Account Operators for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Account Operators for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2341,7 +2341,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Server_Operators_Member"
         } catch {
-            Write-Log "Error Server Operators for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Server Operators for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2368,7 +2368,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Print_Operators_Member"
         } catch {
-            Write-Log "Error Print Operators for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Print Operators for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2395,7 +2395,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "GPO_Creator_Owners_Member"
         } catch {
-            Write-Log "Error GPO Creator Owners for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error GPO Creator Owners for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2486,7 +2486,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  SYSVOL not accessible from this context - skipping MS14-025 injection" "INFO"
         }
     } catch {
-        Write-Log "Error creating GPO Password in SYSVOL: $_" "ERROR"
+        Write-Log "Error creating GPO Password in SYSVOL - error" "ERROR"
     }
 
     # =========================================================================
@@ -2527,7 +2527,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "WriteSPN_Abuse"
         } catch {
-            Write-Log "Error WriteSPN for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error WriteSPN for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2557,11 +2557,11 @@ function Add-SecurityVulnerabilities {
                     Detection = "Get-ADUser -Filter {adminCount -eq 1} | Where-Object {`$_.TrustedForDelegation -eq `$true}"
                 }
             } catch {
-                Write-Log "Error Sensitive Delegation for $($member.SamAccountName): $_" "ERROR"
+                Write-Log "Error Sensitive Delegation for $($member.SamAccountName) - error" "ERROR"
             }
         }
     } catch {
-        Write-Log "Error getting Domain Admins for Sensitive Delegation: $_" "ERROR"
+        Write-Log "Error getting Domain Admins for Sensitive Delegation - error" "ERROR"
     }
 
     # =========================================================================
@@ -2604,7 +2604,7 @@ function Add-SecurityVulnerabilities {
                 Write-Log "Target OU '$fullOU' for shared account $sharedName does not exist. Skipping." "WARNING"
             }
         } catch {
-            Write-Log "Error creating Shared Account $sharedName : $($_.Exception.Message)" "ERROR"
+            Write-Log "Error creating Shared Account $sharedName  - error" "ERROR"
         }
     }
 
@@ -2647,7 +2647,7 @@ function Add-SecurityVulnerabilities {
                 Write-Log "Target OU '$fullOU' for test account $testName does not exist. Skipping." "WARNING"
             }
         } catch {
-            Write-Log "Error creating Test Account $testName : $($_.Exception.Message)" "ERROR"
+            Write-Log "Error creating Test Account $testName  - error" "ERROR"
         }
     }
 
@@ -2677,7 +2677,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Weak_Encryption_Flag"
         } catch {
-            Write-Log "Error Weak Encryption Flag for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Weak Encryption Flag for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2705,7 +2705,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Weak_Encryption_RC4_With_AES"
         } catch {
-            Write-Log "Error RC4 with AES for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error RC4 with AES for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2736,11 +2736,11 @@ function Add-SecurityVulnerabilities {
                     }
                 }
             } catch {
-                Write-Log "Error checking Protected Users for $($member.SamAccountName): $_" "ERROR"
+                Write-Log "Error checking Protected Users for $($member.SamAccountName) - error" "ERROR"
             }
         }
     } catch {
-        Write-Log "Error Protected Users check: $_" "ERROR"
+        Write-Log "Error Protected Users check - error" "ERROR"
     }
 
     # =========================================================================
@@ -2772,7 +2772,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Expired_Account_In_Admin_Group"
         } catch {
-            Write-Log "Error Expired Account for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Expired Account for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2808,7 +2808,7 @@ function Add-SecurityVulnerabilities {
                 Detection = "Get-Acl | Where-Object {`$_.Access.IdentityReference -eq 'Everyone' -and `$_.Access.ActiveDirectoryRights -match 'GenericAll'}"
             }
         } catch {
-            Write-Log "Error Everyone ACL for $($targetUser.SamAccountName): $_" "ERROR"
+            Write-Log "Error Everyone ACL for $($targetUser.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2837,7 +2837,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Dangerous_Logon_Script"
         } catch {
-            Write-Log "Error Logon Script for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Logon Script for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2866,7 +2866,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "LAPS_Password_Leaked"
         } catch {
-            Write-Log "Error LAPS Leak for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error LAPS Leak for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -2901,7 +2901,7 @@ function Add-SecurityVulnerabilities {
                 Detection = "Get-ADComputer -Filter {TrustedForDelegation -eq `$true}"
             }
         } catch {
-            Write-Log "Error Computer Unconstrained Delegation for $compName : $($_.Exception.Message)" "ERROR"
+            Write-Log "Error Computer Unconstrained Delegation for $compName  - error" "ERROR"
         }
     }
 
@@ -2943,7 +2943,7 @@ function Add-SecurityVulnerabilities {
             Detection = "Get-ADGroup -Filter * | Where-Object {(Get-ADGroupMember `$_).Count -gt 1000}"
         }
     } catch {
-        Write-Log "Error Oversized Group: $_" "ERROR"
+        Write-Log "Error Oversized Group - error" "ERROR"
     }
 
     # =========================================================================
@@ -2984,7 +2984,7 @@ function Add-SecurityVulnerabilities {
             Detection = "Get-ADGroup -Filter * | Where-Object {`$c = (Get-ADGroupMember `$_).Count; `$c -ge 500 -and `$c -le 1000}"
         }
     } catch {
-        Write-Log "Error Oversized Group High: $_" "ERROR"
+        Write-Log "Error Oversized Group High - error" "ERROR"
     }
 
     # =========================================================================
@@ -3039,7 +3039,7 @@ function Add-SecurityVulnerabilities {
             }
             Write-Log "  CRITICAL: Granted WriteDACL to Exchange Windows Permissions on domain root (PrivExchange)" "WARNING"
         } catch {
-            Write-Log "Error granting Exchange WriteDACL: $_" "ERROR"
+            Write-Log "Error granting Exchange WriteDACL - error" "ERROR"
         }
 
         # Add users to Exchange group
@@ -3061,11 +3061,11 @@ function Add-SecurityVulnerabilities {
                 $user.Vulnerable = $true
                 $user.VulnType += "Exchange_Security_Groups"
             } catch {
-                Write-Log "Error adding user to Exchange Security Groups: $($user.SamAccountName): $_" "ERROR"
+                Write-Log "Error adding user to Exchange Security Groups: $($user.SamAccountName) - error" "ERROR"
             }
         }
     } catch {
-        Write-Log "Error Exchange Security Groups: $_" "ERROR"
+        Write-Log "Error Exchange Security Groups - error" "ERROR"
     }
 
     # =========================================================================
@@ -3087,7 +3087,7 @@ function Add-SecurityVulnerabilities {
             Detection = "Get-ADObject -Filter {objectClass -eq 'foreignSecurityPrincipal'} -Properties memberOf"
         }
     } catch {
-        Write-Log "Error Foreign Security Principals: $_" "ERROR"
+        Write-Log "Error Foreign Security Principals - error" "ERROR"
     }
 
     # =========================================================================
@@ -3104,7 +3104,7 @@ function Add-SecurityVulnerabilities {
             Detection = "(Get-Acl 'AD:\$dn').Access | Where-Object {try {`$null = [System.Security.Principal.SecurityIdentifier]`$_.IdentityReference.Translate([System.Security.Principal.NTAccount]); `$false} catch {`$true}}"
         }
     } catch {
-        Write-Log "Error Orphaned ACEs: $_" "ERROR"
+        Write-Log "Error Orphaned ACEs - error" "ERROR"
     }
 
     # =========================================================================
@@ -3154,7 +3154,7 @@ function Add-SecurityVulnerabilities {
             Detection = "Parcours recursif des groupes jusqu'a DA/EA"
         }
     } catch {
-        Write-Log "Error Dangerous Group Nesting: $_" "ERROR"
+        Write-Log "Error Dangerous Group Nesting - error" "ERROR"
     }
 
     # =========================================================================
@@ -3189,7 +3189,7 @@ function Add-SecurityVulnerabilities {
                 Detection = "(Get-Acl 'AD:\$dn').Access | Where-Object {`$_.IdentityReference -match 'Authenticated Users' -and `$_.ActiveDirectoryRights -match 'GenericAll'}"
             }
         } catch {
-            Write-Log "Error Authenticated Users ACL for $($targetUser.SamAccountName): $_" "ERROR"
+            Write-Log "Error Authenticated Users ACL for $($targetUser.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3216,7 +3216,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Domain_Admin_In_Description"
         } catch {
-            Write-Log "Error Domain Admin in Description for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Domain Admin in Description for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3248,7 +3248,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Disabled_Account_In_Admin_Group"
         } catch {
-            Write-Log "Error Disabled Account in Admin Group for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Disabled Account in Admin Group for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3278,7 +3278,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Empty_Password"
         } catch {
-            Write-Log "Error Empty Password for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Empty Password for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3306,7 +3306,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "User_Cannot_Change_Password"
         } catch {
-            Write-Log "Error User Cannot Change Password for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error User Cannot Change Password for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3335,11 +3335,11 @@ function Add-SecurityVulnerabilities {
                     Detection = "Get-ADUser -Filter {SmartcardLogonRequired -eq `$false} -Properties SmartcardLogonRequired,MemberOf | Where-Object {`$_.MemberOf -match 'Admin'}"
                 }
             } catch {
-                Write-Log "Error Smartcard Not Required for $($admin.SamAccountName): $_" "ERROR"
+                Write-Log "Error Smartcard Not Required for $($admin.SamAccountName) - error" "ERROR"
             }
         }
     } catch {
-        Write-Log "Error Smartcard Not Required: $_" "ERROR"
+        Write-Log "Error Smartcard Not Required - error" "ERROR"
     }
 
     # =========================================================================
@@ -3371,7 +3371,7 @@ function Add-SecurityVulnerabilities {
                 Detection = "`$allSPNs = Get-ADUser -Filter {ServicePrincipalName -like '*'} -Properties ServicePrincipalName | Select-Object -ExpandProperty ServicePrincipalName; `$allSPNs | Group-Object | Where-Object {`$_.Count -gt 1}"
             }
         } catch {
-            Write-Log "Error Duplicate SPN: $_" "ERROR"
+            Write-Log "Error Duplicate SPN - error" "ERROR"
         }
     }
 
@@ -3400,7 +3400,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Cannot_Change_Password"
         } catch {
-            Write-Log "Error Cannot Change Password for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Cannot Change Password for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3429,7 +3429,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Smartcard_Not_Required"
         } catch {
-            Write-Log "Error Smartcard Not Required for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Smartcard Not Required for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3462,7 +3462,7 @@ function Add-SecurityVulnerabilities {
             $user.Vulnerable = $true
             $user.VulnType += "Expired_Admin"
         } catch {
-            Write-Log "Error Expired Account in DA for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error Expired Account in DA for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -3667,7 +3667,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  INFO: krbtgt password age: $passwordAge days (acceptable)" "INFO"
         }
     } catch {
-        Write-Log "Error checking krbtgt password age: $_" "ERROR"
+        Write-Log "Error checking krbtgt password age - error" "ERROR"
     }
 
     # =========================================================================
@@ -3701,7 +3701,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ADCS not installed or not running - ESC1 vulnerability N/A" "INFO"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC1: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC1 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3724,7 +3724,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC2 Any Purpose EKU vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC2: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC2 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3747,7 +3747,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC3 Enrollment Agent vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC3: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC3 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3770,7 +3770,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC4 Vulnerable Template ACL vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC4: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC4 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3807,7 +3807,7 @@ function Add-SecurityVulnerabilities {
             }
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC6: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC6 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3830,7 +3830,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC5 PKI Object ACL vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC5: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC5 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3853,7 +3853,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC7 CA Vulnerable ACL vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC7: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC7 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3876,7 +3876,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC8 HTTP Enrollment vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC8: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC8 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3899,7 +3899,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC9 No Security Extension vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC9: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC9 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3922,7 +3922,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC10 Weak Certificate Mapping vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC10: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC10 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3945,7 +3945,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  ESC11 ICERT Request Enforcement vulnerability flagged" "WARNING"
         }
     } catch {
-        Write-Log "Error checking ADCS/ESC11: $_" "ERROR"
+        Write-Log "Error checking ADCS/ESC11 - error" "ERROR"
     }
 
     # =========================================================================
@@ -3997,7 +3997,7 @@ function Add-SecurityVulnerabilities {
             Write-Log "  LAPS not configured in AD schema" "INFO"
         }
     } catch {
-        Write-Log "Error checking LAPS: $_" "ERROR"
+        Write-Log "Error checking LAPS - error" "ERROR"
     }
 
     # =========================================================================
@@ -4403,7 +4403,7 @@ function Add-SecurityVulnerabilities {
         Write-Log "GPO Advanced vulnerability checks complete - 7 types assessed" "WARNING"
 
     } catch {
-        Write-Log "Error checking GPO vulnerabilities (GroupPolicy module may not be available): $_" "ERROR"
+        Write-Log "Error checking GPO vulnerabilities (GroupPolicy module may not be available) - error" "ERROR"
     }
 
     # =========================================================================
@@ -4938,7 +4938,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_GenericAll_DA"
         } catch {
-            Write-Log "Error ACL GenericAll DA for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL GenericAll DA for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -4978,7 +4978,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_WriteDACL"
         } catch {
-            Write-Log "Error ACL WriteDACL on group for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL WriteDACL on group for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5014,7 +5014,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_WriteOwner"
         } catch {
-            Write-Log "Error ACL WriteOwner on group for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL WriteOwner on group for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5051,7 +5051,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_WriteDACL"
         } catch {
-            Write-Log "Error ACL WriteDACL for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL WriteDACL for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5089,7 +5089,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_GenericWrite"
         } catch {
-            Write-Log "Error ACL GenericWrite for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL GenericWrite for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5131,7 +5131,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_ForceChangePassword"
         } catch {
-            Write-Log "Error ACL ForceChangePassword for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL ForceChangePassword for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5176,7 +5176,7 @@ function Add-DangerousACLs {
                 $user.VulnType += "ACL_AddMember"
             }
         } catch {
-            Write-Log "Error ACL AddMember for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL AddMember for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5226,7 +5226,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "DCSync"
         } catch {
-            Write-Log "Error ACL DCSync for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL DCSync for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5262,7 +5262,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_GenericWrite"
         } catch {
-            Write-Log "Error ACL GenericWrite on group for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL GenericWrite on group for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5306,7 +5306,7 @@ function Add-DangerousACLs {
             $user.Vulnerable = $true
             $user.VulnType += "ACL_ForceChangePassword"
         } catch {
-            Write-Log "Error ACL ForceChangePassword for $($user.SamAccountName): $_" "ERROR"
+            Write-Log "Error ACL ForceChangePassword for $($user.SamAccountName) - error" "ERROR"
         }
     }
 
@@ -5339,7 +5339,7 @@ function Add-DangerousACLs {
         }
         Write-Log "  Everyone GenericWrite added to Domain Admins" "WARNING"
     } catch {
-        Write-Log "Error Everyone ACL: $_" "ERROR"
+        Write-Log "Error Everyone ACL - error" "ERROR"
     }
 
     $script:Config.Vulnerabilities += $aclVulns
@@ -5416,7 +5416,7 @@ function New-ADComputers {
                 }
 
             } catch {
-                Write-Log "Error creating computer $compName : $_" "ERROR"
+                Write-Log "Error creating computer $compName  - error" "ERROR"
             }
         }
     }

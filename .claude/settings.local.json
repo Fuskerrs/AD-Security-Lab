@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(comm:*)",
+      "Bash(sort:*)",
+      "Bash(curl:*)",
+      "Bash(for endpoint in \"status\" \"info\" \"collectors\" \"config\" \"domains\")",
+      "Bash(do echo -e \"\\\\n--- /api/v1/$endpoint ---\")",
+      "Bash(done)",
+      "Bash(for endpoint in \"audit\" \"audit/status\" \"audit/domains\" \"audit/summary\")",
+      "Bash(TOKEN=\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkYmQ5ZDUxMi0yN2ZiLTRlMTctODhkZS1lMTU2ZTA2NmJkODAiLCJpc3MiOiJldGMtY29sbGVjdG9yIiwic3ViIjoic3lzdGVtIiwiaWF0IjoxNzY5Nzk0Mjg4LCJleHAiOjE3NzIzODYyODgsInNlcnZpY2UiOiJldGMtY29sbGVjdG9yIiwibWF4VXNlcyI6MH0.ewLpPYbh9z9aLGA6mLzxE59FFKdBZFAaOYxbQeCbQkdTMRQzkwFdUCX18KBOntsBgBx_qbQkwROA0DNOpJi3n9Avg8AfhA8Mx6NAf7VWcxXEePN-8Gzp-WJKCfMC5DufrO7jLws1QP1wMAWJUcQa7-XaQmeLpSkLKyh6E9HqmWulaerktZ2jrv5IdR8Hzuhsamp8U03YU_gNJawgQIePQJlEyC-VKMWSwePTioJ1KvQAFhBnb7wANGtEQ6O1qrbYOAGfqpatQR8xGUz5Tvj3jA_VZV8VyYrWvT9EHLIca7nl2JMO1ggKrrUnNbAm9inNqgGszZiHDAWtoUIYeGqUdQ\")",
+      "Bash(python3:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd API documentation and vulnerability analysis reports\n\n- API curl commands with updated token and endpoints\n- OpenAPI 3.0.3 specification \\(api.yaml\\)\n- AD vulnerability catalog \\(216 detection types\\)\n- Vulnerability coverage report \\(470 instances, 138 types\\)\n- Fix script for OU creation errors\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(export TOKEN=:*)",
+      "Bash(export API_URL=\"http://10.10.0.37:8443\")",
+      "Bash(export JOB_ID=\"ad-audit-1769794742954-c9338835\")",
+      "Bash(echo:*)",
+      "Bash(tree:*)",
+      "Bash(powershell:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Add v1.1.4 audit analysis with comprehensive comparison\n\n- Test v1.1.4 with Type Name Normalizer \\(~150 mappings\\)\n- Organize audit folder by version \\(v1.1.1, v1.1.3, v1.1.4\\)\n- Create detailed analysis for v1.1.4 \\(analysis-v1.1.4.md\\)\n- Update README with evolution tracking and roadmap\n- Add comprehensive comparison across all versions\n\nKey findings:\n- Detection rate unchanged: 37.7% \\(52/138 types\\)\n- Score: 26/100 \\(identical to v1.1.3\\)\n- Findings: 6,501 objects, 19,246 instances\n- Normalizer improves naming consistency but not detection\n- ADCS: 91% detection \\(excellent\\)\n- Attack Paths: 0% \\(not implemented\\)\n- GPO: 11% \\(needs improvement\\)\n\nNext priorities:\n1. v1.1.5: Implement Attack Paths detection\n2. v1.1.6: Improve GPO detection\n3. v1.1.7: Fix Computer detection gaps\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
