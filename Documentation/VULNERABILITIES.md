@@ -1,378 +1,332 @@
-# Liste des 87 Vulnérabilités Active Directory - GlobalCorp Lab
+# Vulnérabilités injectées dans l'AD GlobalCorp
 
-Ce document liste toutes les vulnérabilités injectées par le script `Populate-AD-GlobalCorp.ps1`.
-
----
-
-## 🔴 CRITICAL (9 vulnérabilités)
-
-### 1. RBCD Abuse (Resource-Based Constrained Delegation)
-- **Type**: WriteProperty on msDS-AllowedToActOnBehalfOfOtherIdentity
-- **Impact**: Permet de compromettre des comptes via Kerberos delegation
-- **Détection**: `Get-ADUser -Filter * -Properties msDS-AllowedToActOnBehalfOfOtherIdentity`
-
-### 2. Primary Group ID Spoofing
-- **Type**: Hidden Domain Admins membership
-- **Impact**: Appartenance cachée au groupe Domain Admins
-- **Détection**: `Get-ADUser -Filter * -Properties PrimaryGroupID | Where {$_.PrimaryGroupID -eq 512}`
-
-### 3. AdminSDHolder Backdoor
-- **Type**: Persistence sur tous les admins
-- **Impact**: Persistance via AdminSDHolder pour tous les comptes admin
-- **Détection**: Vérifier les ACLs sur CN=AdminSDHolder,CN=System
-
-### 4. SID History Injection
-- **Type**: Privilege escalation
-- **Impact**: Escalade de privilèges via SID History manipulation
-- **Détection**: `Get-ADUser -Filter * -Properties SIDHistory | Where {$_.SIDHistory}`
-
-### 5. Shadow Credentials ACL
-- **Type**: WriteProperty on msDS-KeyCredentialLink
-- **Impact**: Permet d'ajouter des credentials WHfB pour prendre le contrôle du compte
-- **Détection**: `Get-ADUser -Filter * -Properties msDS-KeyCredentialLink`
-
-### 6. DNS Admins Membership
-- **Type**: DLL injection -> SYSTEM on DC
-- **Impact**: Exécution de code arbitraire sur le DC via DLL loading
-- **Détection**: `Get-ADGroupMember "DnsAdmins"`
-
-### 7. Sensitive Delegation
-- **Type**: Admins avec delegation activée
-- **Impact**: Comptes admin configurés pour la délégation Kerberos
-- **Détection**: `Get-ADUser -Filter {TrustedForDelegation -eq $true -and AdminCount -eq 1}`
-
-### 8. Exchange Security Groups Membership
-- **Type**: Exchange Trusted Subsystem / Organization Management
-- **Impact**: Permet DCSync et contrôle complet de l'AD via Exchange
-- **Détection**: `Get-ADGroupMember "Exchange Trusted Subsystem"`
-
-### 9. DCSync Rights
-- **Type**: Replication rights (très dangereux)
-- **Impact**: Permet de dumper tous les hashes NTLM du domaine
-- **Détection**: Vérifier ACLs avec DS-Replication-Get-Changes
+**Date d'injection:** 2026-01-30 17:43
+**Script:** Populate-AD-GlobalCorp.ps1
+**Rapport:** GlobalCorp_Vulnerabilities_20260130_174331.csv
 
 ---
 
-## 🟠 HIGH (12 vulnérabilités)
+## 📊 Vue d'ensemble
 
-### 10. Backup Operators Membership
-- **Type**: NTDS.dit access
-- **Impact**: Accès direct à la base de données AD
-- **Détection**: `Get-ADGroupMember "Backup Operators"`
-
-### 11. Account Operators Membership
-- **Type**: Create accounts privilege
-- **Impact**: Peut créer des comptes et modifier des groupes
-- **Détection**: `Get-ADGroupMember "Account Operators"`
-
-### 12. Server Operators Membership
-- **Type**: Service modification
-- **Impact**: Peut modifier les services sur les serveurs
-- **Détection**: `Get-ADGroupMember "Server Operators"`
-
-### 13. Print Operators Membership
-- **Type**: Driver loading capability
-- **Impact**: Peut charger des drivers (code kernel)
-- **Détection**: `Get-ADGroupMember "Print Operators"`
-
-### 14. Group Policy Creator Owners Membership
-- **Type**: GPO creation rights
-- **Impact**: Peut créer des GPOs pour déployer du code
-- **Détection**: `Get-ADGroupMember "Group Policy Creator Owners"`
-
-### 15. WriteSPN Abuse
-- **Type**: Targeted Kerberoasting
-- **Impact**: Peut ajouter des SPNs pour Kerberoaster des comptes
-- **Détection**: Chercher ACL WriteSPN sur les users
-
-### 16. Weak Encryption Flags
-- **Type**: USE_DES_KEY_ONLY flag
-- **Impact**: Force l'utilisation de DES (cassable facilement)
-- **Détection**: `Get-ADUser -Filter * -Properties userAccountControl | Where {$_.userAccountControl -band 0x200000}`
-
-### 17. Unconstrained Delegation (Computers)
-- **Type**: Computer objects avec delegation non contrainte
-- **Impact**: Permet TGT harvesting et attaques relay
-- **Détection**: `Get-ADComputer -Filter {TrustedForDelegation -eq $true}`
-
-### 18. Oversized Groups (>1000 membres)
-- **Type**: Groups avec trop de membres
-- **Impact**: Performance issues et difficultés d'audit
-- **Détection**: `Get-ADGroup -Filter * -Properties Members | Where {$_.Members.Count -gt 1000}`
-
-### 19. Expired Accounts in Domain Admins
-- **Type**: Comptes expirés toujours dans DA
-- **Impact**: Comptes dormants avec privilèges élevés
-- **Détection**: `Get-ADGroupMember "Domain Admins" | Get-ADUser -Properties AccountExpirationDate | Where {$_.AccountExpirationDate -lt (Get-Date)}`
-
-### 20. AS-REP Roasting (DoesNotRequirePreAuth)
-- **Type**: Pre-authentication disabled
-- **Impact**: Permet d'obtenir un TGT sans authentification
-- **Détection**: `Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}`
-
-### 21. Kerberoasting (SPNs on users)
-- **Type**: Service Principal Names sur comptes users
-- **Impact**: Permet d'extraire et casser les hashes Kerberos
-- **Détection**: `Get-ADUser -Filter {ServicePrincipalNames -like "*"} -Properties ServicePrincipalNames`
+| Métrique | Valeur |
+|----------|--------|
+| **Total instances** | 470 |
+| **Types uniques** | 138 |
+| **Utilisateurs affectés** | 541 |
+| **Ordinateurs affectés** | 79 |
+| **Groupes affectés** | 151 |
 
 ---
 
-## 🟡 MEDIUM (28 vulnérabilités)
+## 📋 Liste complète des 138 types injectés
 
-### 22. RC4 with AES
-- **Type**: Downgrade attack vulnerability
-- **Impact**: Permet de forcer RC4 même si AES est disponible
-- **Détection**: Vérifier userAccountControl pour encryption types
+### Top 20 (par nombre d'instances)
 
-### 23. Admins NOT in Protected Users Group
-- **Type**: Configuration faible
-- **Impact**: Admins non protégés contre credential theft
-- **Détection**: `Get-ADGroupMember "Domain Admins" | Where {(Get-ADUser $_ -Properties MemberOf).MemberOf -notcontains "CN=Protected Users,..."}`
-
-### 24. Expired Accounts in Admin Groups
-- **Type**: Comptes expirés avec privilèges
-- **Impact**: Comptes dormants exploitables
-- **Détection**: `Get-ADUser -Filter * -Properties AccountExpirationDate | Where {$_.AccountExpirationDate -lt (Get-Date)}`
-
-### 25. Everyone in ACLs
-- **Type**: GenericAll pour Everyone
-- **Impact**: Tout le monde peut modifier certains objets
-- **Détection**: Vérifier ACLs pour Everyone/Authenticated Users
-
-### 26. Dangerous Logon Scripts
-- **Type**: Scripts modifiables
-- **Impact**: Scripts de logon avec permissions faibles
-- **Détection**: Vérifier les ACLs sur les logon scripts
-
-### 27. LAPS Password Leaked in Description
-- **Type**: Mot de passe LAPS dans description
-- **Impact**: Exposure du password admin local
-- **Détection**: `Get-ADComputer -Filter * -Properties Description | Where {$_.Description -match "LAPS|password"}`
-
-### 28. Oversized Groups (500-1000 membres)
-- **Type**: Groups moyennement larges
-- **Impact**: Difficultés de gestion et audit
-- **Détection**: `Get-ADGroup -Filter * -Properties Members | Where {$_.Members.Count -gt 500 -and $_.Members.Count -lt 1000}`
-
-### 29. Foreign Security Principals in Admin Groups
-- **Type**: Externes dans groupes admin
-- **Impact**: Comptes d'autres domaines avec privilèges
-- **Détection**: `Get-ADGroupMember "Domain Admins" | Where {$_.objectClass -eq "foreignSecurityPrincipal"}`
-
-### 30. Orphaned ACEs
-- **Type**: ACLs orphelines (SIDs invalides)
-- **Impact**: ACLs non nettoyées après suppression d'objets
-- **Détection**: Analyser ACLs pour SIDs non résolus
-
-### 31. Dangerous Group Nesting
-- **Type**: Hiérarchie de groupes profonde
-- **Impact**: Chemins d'escalade cachés via imbrication
-- **Détection**: Analyser la profondeur des groupes imbriqués
-
-### 32. Authenticated Users in ACLs
-- **Type**: Authenticated Users avec permissions élevées
-- **Impact**: Tous les users auth peuvent modifier certains objets
-- **Détection**: Vérifier ACLs pour Authenticated Users
-
-### 33. Domain Admin Mention in Description
-- **Type**: "Domain Admin" dans le champ description
-- **Impact**: Information disclosure sur comptes privilégiés
-- **Détection**: `Get-ADUser -Filter * -Properties Description | Where {$_.Description -match "domain admin|DA|admin"}`
-
-### 34. Disabled Account in Admin Group
-- **Type**: Comptes désactivés dans groupes admin
-- **Impact**: Comptes dormants réactivables
-- **Détection**: `Get-ADGroupMember "Domain Admins" | Get-ADUser | Where {-not $_.Enabled}`
-
-### 35. User Cannot Change Password (flag 0x0040)
-- **Type**: PASSWD_CANT_CHANGE flag
-- **Impact**: Utilisateur ne peut pas changer son MDP
-- **Détection**: `Get-ADUser -Filter * -Properties userAccountControl | Where {$_.userAccountControl -band 0x40}`
-
-### 36. Smartcard Not Required (flag 0x40000)
-- **Type**: SMARTCARD_NOT_REQUIRED flag
-- **Impact**: Contourne la politique smartcard obligatoire
-- **Détection**: `Get-ADUser -Filter * -Properties userAccountControl | Where {$_.userAccountControl -band 0x40000}`
-
-### 37. Shared Accounts
-- **Type**: Comptes partagés entre utilisateurs
-- **Impact**: Pas de non-répudiation, mauvaise hygiène
-- **Détection**: Chercher users avec "shared" ou "service" dans le nom
-
-### 38. Pre-Windows 2000 Compatible Access Abuse
-- **Type**: Everyone read access activé
-- **Impact**: Lecture de tous les attributs AD par Everyone
-- **Détection**: Vérifier membership du groupe "Pre-Windows 2000 Compatible Access"
-
-### 39. PasswordNeverExpires
-- **Type**: Mot de passe qui n'expire jamais
-- **Impact**: Passwords anciens jamais changés
-- **Détection**: `Get-ADUser -Filter {PasswordNeverExpires -eq $true}`
-
-### 40. PasswordNotRequired
-- **Type**: PASSWD_NOTREQD flag
-- **Impact**: Compte sans MDP requis
-- **Détection**: `Get-ADUser -Filter * -Properties userAccountControl | Where {$_.userAccountControl -band 0x20}`
-
-### 41. AllowReversiblePasswordEncryption
-- **Type**: Passwords stockés en clair réversible
-- **Impact**: MDP récupérables depuis AD
-- **Détection**: `Get-ADUser -Filter {AllowReversiblePasswordEncryption -eq $true}`
-
-### 42. Unconstrained Delegation (Users)
-- **Type**: Délégation Kerberos non contrainte
-- **Impact**: Peut impersonner n'importe quel user
-- **Détection**: `Get-ADUser -Filter {TrustedForDelegation -eq $true}`
-
-### 43. Constrained Delegation
-- **Type**: Délégation Kerberos contrainte
-- **Impact**: Peut impersonner des users vers certains services
-- **Détection**: `Get-ADUser -Filter * -Properties msDS-AllowedToDelegateTo | Where {$_."msDS-AllowedToDelegateTo"}`
-
-### 44. Passwords in Description
-- **Type**: Mots de passe dans le champ description
-- **Impact**: Passwords en clair visibles
-- **Détection**: `Get-ADUser -Filter * -Properties Description | Where {$_.Description -match "pass|pwd|mot de passe"}`
-
-### 45. Disabled Accounts in Admin Groups
-- **Type**: Comptes désactivés mais toujours dans groupes admin
-- **Impact**: Réactivation = instant admin
-- **Détection**: `Get-ADGroupMember "Domain Admins" | Get-ADUser | Where {-not $_.Enabled}`
-
-### 46. Stale Accounts
-- **Type**: Comptes inactifs depuis longtemps
-- **Impact**: Comptes oubliés potentiellement exploitables
-- **Détection**: `Get-ADUser -Filter * -Properties LastLogonDate | Where {$_.LastLogonDate -lt (Get-Date).AddDays(-90)}`
-
-### 47. AdminCount=1 on Non-Protected Users
-- **Type**: AdminCount flag sur users non-admin
-- **Impact**: Héritage ACL désactivé anormalement
-- **Détection**: `Get-ADUser -Filter {AdminCount -eq 1} | Where {# vérifier si réellement admin}`
-
-### 48. SID History Present
-- **Type**: Attribut SIDHistory rempli
-- **Impact**: Peut contenir des SIDs privilégiés cachés
-- **Détection**: `Get-ADUser -Filter * -Properties SIDHistory | Where {$_.SIDHistory}`
-
-### 49. Privileged Users NOT in Protected Users
-- **Type**: Admins sans protection renforcée
-- **Impact**: Vulnérables au credential theft
-- **Détection**: Comparer Domain Admins vs Protected Users
+| # | Type | Instances | Vérifié dans AD | Status |
+|---|------|-----------|-----------------|--------|
+| 1 | **Ultra_Vulnerable_User** | 20 | ❓ Non | À vérifier |
+| 2 | **COMPUTER_NO_BITLOCKER** | 18 | ⚠️ Oui | Non vérifiable (pas dans AD) |
+| 3 | **Computer_Stale_Inactive** | 17 | ✅ Oui | **78 trouvés** (4.6x plus!) |
+| 4 | **Computer_Old_Password** | 17 | ❌ Oui | **0 trouvé** (bug injection) |
+| 5 | **Computer_No_LAPS** | 16 | ⚠️ Oui | Erreur (LAPS pas déployé) |
+| 6 | **Computer_Pre_Created** | 15 | ❓ Non | À vérifier |
+| 7 | **COMPUTER_LEGACY_PROTOCOL_SMBV1** | 15 | ❓ Non | À vérifier |
+| 8 | **Computer_With_SPNs** | 12 | ❓ Non | À vérifier |
+| 9 | **Computer_SMB_Signing_Disabled** | 11 | ❓ Non | À vérifier |
+| 10 | **Computer_Weak_Encryption** | 10 | ❓ Non | À vérifier |
+| 11 | **StaleAccount** | 10 | ❓ Non | À vérifier |
+| 12 | **Computer_Disabled_Not_Deleted** | 9 | ✅ Oui | **9 trouvés** (match) |
+| 13 | **SERVICE_ACCOUNT_NAMING** | 8 | ❓ Non | À vérifier |
+| 14 | **PasswordNeverExpires** | 8 | ✅ Oui | **38 trouvés** (4.7x plus!) |
+| 15 | **Computer_Local_Admin_Mapping** | 8 | ❓ Non | À vérifier |
+| 16 | **ACL_ForceChangePassword** | 8 | ❓ Non | À vérifier |
+| 17 | **Computer_Wrong_OU** | 7 | ❓ Non | À vérifier |
+| 18 | **SERVICE_ACCOUNT_WITH_SPN** | 6 | ❓ Non | À vérifier |
+| 19 | **Computer_Weak_LAPS** | 6 | ❓ Non | À vérifier |
+| 20 | **Computer_Unconstrained_Delegation** | 6 | ✅ Oui | **7 trouvés** (match) |
 
 ---
 
-## 🟢 LOW (14 vulnérabilités)
+## ✅ Vulnérabilités VÉRIFIÉES dans l'AD (15 types)
 
-### 50. Test Accounts
-- **Type**: Comptes de test oubliés
-- **Impact**: Comptes de dev/test en production
-- **Détection**: `Get-ADUser -Filter * | Where {$_.Name -match "test|temp|demo"}`
+| Type | Injecté | Trouvé | Ratio | Détecté v1.1.4 |
+|------|---------|--------|-------|----------------|
+| **PasswordNeverExpires** | 8 | ✅ **38** | 4.7x | ❌ **BUG** |
+| **Computer_Stale_Inactive** | 17 | ✅ **78** | 4.6x | ❌ **BUG** |
+| **Computer_Never_Logged_On** | 3 | ✅ **78** | 26x | ✅ Oui |
+| **Kerberoastable** | 3 | ✅ **34** | 11x | ❓ |
+| **AsRepRoastable** | 3 | ✅ **25** | 8.3x | ❓ |
+| **ConstrainedDelegation** | 1 | ✅ **17** | 17x | ✅ Oui |
+| **UnconstrainedDelegation** | 1 | ✅ **7** | 7x | ✅ Oui |
+| **Computer_Sensitive_Description** | 6 | ✅ **16** | 2.7x | ❌ Non |
+| **Computer_Disabled_Not_Deleted** | 9 | ✅ **9** | 1x | ❌ Non |
+| **GPO_Password_In_SYSVOL** | 1 | ✅ **1** | 1x | ❌ **BUG** |
+| **Computer_Duplicate_SPN** | 1 | ❌ **0** | 0x | ❌ |
+| **Computer_Old_Password** | 17 | ❌ **0** | 0x | ❌ |
+| **Computer_Pre_Win2000** | 1 | ❌ **0** | 0x | ❌ |
+| **Computer_No_Bitlocker** | 18 | ⚠️ **79** | N/A | ✅ Oui |
+| **Computer_No_LAPS** | 16 | ⚠️ **Erreur** | N/A | ✅ Oui |
 
-### 51. Empty Password
-- **Type**: PASSWORD_NOT_REQUIRED flag
-- **Impact**: Comptes sans mot de passe
-- **Détection**: `Get-ADUser -Filter * -Properties userAccountControl | Where {$_.userAccountControl -band 0x20}`
+### 🚨 Bugs critiques confirmés
 
-### 52. User Cannot Change Password
-- **Type**: Permission refusée de changer MDP
-- **Impact**: User dépendant de l'admin pour MDP
-- **Détection**: Vérifier ACLs pour User-Change-Password
+**3 vulnérabilités EXISTENT dans l'AD mais NON détectées par v1.1.4:**
 
-### 53. Smartcard Not Required (admins)
-- **Type**: Admins sans smartcard obligatoire
-- **Impact**: Contournement de la 2FA
-- **Détection**: `Get-ADUser -Filter {AdminCount -eq 1} -Properties userAccountControl | Where {$_.userAccountControl -band 0x40000}`
-
-### 54. Duplicate SPN
-- **Type**: SPNs en double dans le domaine
-- **Impact**: Problèmes d'authentification Kerberos
-- **Détection**: Chercher SPNs identiques sur plusieurs comptes
-
-### 55-63. ACL-Based Vulnerabilities (WARNING level)
-- **GenericAll on Domain Admins** - Contrôle total sur DA
-- **WriteDACL on Sensitive Groups** - Peut modifier permissions
-- **WriteOwner on Sensitive Groups** - Peut prendre ownership
-- **WriteDACL on OUs** - Peut modifier ACLs des OUs
-- **GenericWrite on Privileged Users** - Peut modifier attributs admins
-- **ForceChangePassword on Admins** - Peut reset MDPs admin
-- **WriteProperty (member) on Privileged Groups** - Peut ajouter membres
-- **GenericWrite on Sensitive Groups** - Modifications sur groupes sensibles
-- **ForceChangePassword ExtendedRight on Domain Admins** - Reset MDP DA
-
-### 64. Everyone with GenericWrite on Domain Admins
-- **Type**: Everyone peut modifier DA
-- **Impact**: Tout le monde peut potentiellement devenir DA
-- **Détection**: Vérifier ACLs sur CN=Domain Admins
-
-### 65-67. Group Membership Vulnerabilities
-- **Domain Admins** - Membres non légitimes
-- **Account Operators** - Membres non autorisés
-- **Backup Operators** - Membres non autorisés
-
-### 68-74. Additional Dangerous Memberships
-- **DnsAdmins** - Membres supplémentaires
-- **Print Operators** - Membres non autorisés
-- **Remote Desktop Users** - Accès RDP étendu
-- **Schema Admins** - Membres non légitimes
-- **Enterprise Admins** - Membres non autorisés
-- **Group Policy Creator Owners** - Créateurs GPO non autorisés
-
-### 75-80. Advanced Privilege Escalation
-- **Nested Groups to Domain Admins** - Chemins cachés vers DA
-- **LAPS Read Rights** - Lecture passwords LAPS
-- **GPO Linking Rights (gPLink poisoning)** - Modification GPO links
-- **Enable Delegation Rights** - Peut activer délégation
-- **Suspicious SID Properties** - Propriétés SID anormales
-- **Unix Passwords in Clear** - unixUserPassword en clair
-
-### 81-87. Computer Vulnerabilities (20 types)
-- **Unconstrained Delegation** - Computers avec délégation
-- **Pre-Windows 2000 Compatible** - Anciens protocoles actifs
-- **LAPS Not Configured** - LAPS absent
-- **SMB Signing Disabled** - SMB signing désactivé
-- **LLMNR/NBT-NS Enabled** - Protocols legacy actifs
-- **Weak Local Admin Password** - MDP admin local faible
-- **No Antivirus** - Pas d'AV
+1. **PASSWORD_NEVER_EXPIRES** - 38 utilisateurs dans l'AD, 0 détecté
+2. **GPO_PASSWORD_IN_SYSVOL** - 1 fichier dans l'AD, 0 détecté
+3. **COMPUTER_STALE_INACTIVE** - 78 ordinateurs dans l'AD, 0 détecté
 
 ---
 
-## 📊 Résumé par Sévérité
+## 📝 Liste complète (138 types)
 
-| Sévérité | Nombre | Pourcentage |
-|----------|--------|-------------|
-| CRITICAL | 9 | 10.3% |
-| HIGH | 12 | 13.8% |
-| MEDIUM | 28 | 32.2% |
-| LOW | 14 | 16.1% |
-| WARNING | 24 | 27.6% |
-| **TOTAL** | **87** | **100%** |
+### ACL/Permissions (11 types, 48 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| ACL_ForceChangePassword | 8 | ✅ Oui |
+| ACL_WriteDACL_OU | 5 | ❌ Non |
+| ACL_GenericWrite_User | 5 | ❌ Non |
+| ACL_AddMember | 5 | ❌ Non |
+| ACL_WriteOwner_SensitiveGroup | 3 | ❌ Non |
+| ACL_WriteDACL_SensitiveGroup | 3 | ❌ Non |
+| ACL_GenericWrite_SensitiveGroup | 3 | ❌ Non |
+| ACL_GenericAll_DA | 3 | ❌ Non |
+| ACL_DCSync | 2 | ❌ Non |
+| Orphaned_ACEs | 1 | ❌ Non |
+| NestedGroupPath | 5 | ❌ Non |
+
+### Computers (27 types, 187 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| COMPUTER_NO_BITLOCKER | 18 | ✅ Oui |
+| Computer_Stale_Inactive | 17 | ❌ **BUG** |
+| Computer_Old_Password | 17 | ❌ Non |
+| Computer_No_LAPS | 16 | ✅ Oui |
+| Computer_Pre_Created | 15 | ❌ Non |
+| COMPUTER_LEGACY_PROTOCOL_SMBV1 | 15 | ❌ Non |
+| Computer_With_SPNs | 12 | ✅ Oui |
+| Computer_SMB_Signing_Disabled | 11 | ❌ Non |
+| Computer_Weak_Encryption | 10 | ✅ Oui |
+| Computer_Disabled_Not_Deleted | 9 | ❌ Non |
+| Computer_Local_Admin_Mapping | 8 | ❌ Non |
+| Computer_Wrong_OU | 7 | ✅ Oui |
+| Computer_Weak_LAPS | 6 | ❌ Non |
+| Computer_Unconstrained_Delegation | 6 | ✅ Oui |
+| Computer_Sensitive_Description | 6 | ❌ Non |
+| Computer_In_Admin_Group | 5 | ✅ Oui |
+| COMPUTER_OS_OBSOLETE_XP | 4 | ✅ Oui |
+| COMPUTER_OS_OBSOLETE_2003 | 3 | ✅ Oui |
+| COMPUTER_NEVER_LOGGED_ON | 3 | ✅ Oui |
+| Computer_RBCD | 3 | ❌ Non |
+| COMPUTER_OS_OBSOLETE_VISTA | 2 | ✅ Oui |
+| COMPUTER_OS_OBSOLETE_2008 | 2 | ✅ Oui |
+| Computer_ACL_GenericAll | 2 | ❌ Non |
+| COMPUTER_DUPLICATE_SPN | 1 | ❌ Non |
+| Computer_Pre_Win2000 | 1 | ❌ Non |
+| Duplicate_SPN | 1 | ❌ Non |
+
+### Passwords (7 types, 23 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| PasswordNeverExpires | 8 | ❌ **BUG** |
+| PasswordInDescription | 5 | ❌ Non |
+| PasswordNotRequired | 2 | ❌ Non |
+| UnixUserPassword_Clear | 2 | ❌ Non |
+| ReversibleEncryption | 1 | ❌ Non |
+| Empty_Password | 1 | ❌ Non |
+| WEAK_PASSWORD_POLICY | 1 | ✅ Oui |
+
+### Kerberos (6 types, 12 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| Kerberoastable | 3 | ❌ Non |
+| Kerberoastable_WeakPassword | 3 | ❌ Non |
+| ASREPRoastable | 3 | ❌ Non |
+| UnconstrainedDelegation | 1 | ✅ Oui |
+| ConstrainedDelegation | 1 | ✅ Oui |
+| KERBEROS_TICKET_LIFETIME_LONG | 1 | ❌ Non |
+
+### Accounts (22 types, 75 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| Ultra_Vulnerable_User | 20 | ❌ Non |
+| StaleAccount | 10 | ❌ Non |
+| Test_Account | 5 | ✅ Oui |
+| SuspiciousAccountName | 5 | ❌ Non |
+| Shared_Account | 5 | ✅ Oui |
+| NotInProtectedUsers | 5 | ❌ Non |
+| AdminCount_Orphaned | 5 | ❌ Non |
+| User_Cannot_Change_Password | 4 | ❌ Non |
+| Smartcard_Not_Required | 3 | ✅ Oui |
+| Not_In_Protected_Users | 3 | ✅ Oui |
+| Expired_Account_In_Admin_Group | 3 | ✅ Oui |
+| Domain_Admin_In_Description | 3 | ✅ Oui |
+| DisabledAccountInPrivGroup | 3 | ❌ Non |
+| SIDHistory | 2 | ❌ Non |
+| Sensitive_Delegation | 2 | ✅ Oui |
+| SeEnableDelegationPrivilege | 2 | ❌ Non |
+| SuspiciousSIDProperties | 1 | ❌ Non |
+| Shadow_Credentials | 1 | ❌ Non |
+| Foreign_Security_Principals | 1 | ❌ Non |
+| Disabled_Account_In_Admin_Group | 1 | ✅ Oui |
+| ADMIN_SD_HOLDER_MODIFIED | 1 | ❌ Non |
+| AdminSDHolder_Backdoor | 1 | ✅ Oui |
+
+### Service Accounts (7 types, 25 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| SERVICE_ACCOUNT_NAMING | 8 | ✅ Oui |
+| SERVICE_ACCOUNT_WITH_SPN | 6 | ✅ Oui |
+| SERVICE_ACCOUNT_OLD_PASSWORD | 3 | ✅ Oui |
+| SERVICE_ACCOUNT_WEAK_ENCRYPTION | 2 | ✅ Oui |
+| SERVICE_ACCOUNT_PRIVILEGED | 2 | ✅ Oui |
+| SERVICE_ACCOUNT_NO_PREAUTH | 2 | ✅ Oui |
+| SERVICE_ACCOUNT_INTERACTIVE | 2 | ✅ Oui |
+
+### Groups (10 types, 18 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| Dangerous_Group_Nesting | 1 | ✅ Oui |
+| Oversized_Group_High | 1 | ✅ Oui |
+| Oversized_Group_Critical | 1 | ❌ Non |
+| GROUP_PROTECTED_USERS_EMPTY | 1 | ✅ Oui |
+| GPO_Creator_Owners_Member | 1 | ❌ Non |
+| Account_Operators_Member | 1 | ✅ Oui |
+| Backup_Operators_Member | 1 | ✅ Oui |
+| DNS_Admins_Member | 2 | ✅ Oui |
+| Print_Operators_Member | 1 | ✅ Oui |
+| Server_Operators_Member | 1 | ✅ Oui |
+| BUILTIN_MODIFIED | 1 | ✅ Oui |
+
+### ADCS (10 types, 10 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| ESC1_Vulnerable_Certificate_Template | 1 | ❌ Non |
+| ESC2_Any_Purpose_EKU | 1 | ❌ Non |
+| ESC3_Enrollment_Agent | 1 | ✅ Oui |
+| ESC4_Vulnerable_Template_ACL | 1 | ✅ Oui |
+| ESC5_PKI_Object_ACL | 1 | ✅ Oui |
+| ESC7_CA_Vulnerable_ACL | 1 | ✅ Oui |
+| ESC8_HTTP_Enrollment | 1 | ✅ Oui |
+| ESC9_No_Security_Extension | 1 | ✅ Oui |
+| ESC10_Weak_Certificate_Mapping | 1 | ✅ Oui |
+| ESC11_ICERT_Request_Enforcement | 1 | ✅ Oui |
+
+### GPO (5 types, 6 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| GPO_Password_in_SYSVOL | 1 | ❌ **BUG** |
+| GPO_LinkPoisoning | 2 | ❌ Non |
+| GPO_LAPS_NOT_DEPLOYED | 1 | ✅ Oui |
+| GPO_NO_SECURITY_FILTERING | 1 | ❌ Non |
+| GPO_AUTHENTICATED_USERS_APPLY | 1 | ❌ Non |
+
+### Attack Paths (7 types, 7 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| PATH_ASREP_TO_ADMIN | 1 | ❌ Non |
+| PATH_CERTIFICATE_ESC | 1 | ❌ Non |
+| PATH_DELEGATION_CHAIN | 1 | ❌ Non |
+| PATH_GPO_TO_DA | 1 | ❌ Non |
+| PATH_NESTED_ADMIN | 1 | ❌ Non |
+| PATH_SERVICE_TO_DA | 1 | ❌ Non |
+| PATH_TRUST_LATERAL | 1 | ❌ Non |
+
+### Excessive Privileges (8 types, 17 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| ExcessivePrivileges_RDP | 3 | ❌ Non |
+| ExcessivePrivileges_DA | 3 | ❌ Non |
+| ExcessivePrivileges_PrintOps | 2 | ❌ Non |
+| ExcessivePrivileges_DNS | 2 | ❌ Non |
+| ExcessivePrivileges_BO | 2 | ❌ Non |
+| ExcessivePrivileges_AO | 2 | ❌ Non |
+| ExcessivePrivileges_SchemaAdmin | 1 | ❌ Non |
+| ExcessivePrivileges_EnterpriseAdmin | 1 | ❌ Non |
+
+### Advanced/Config (14 types, 22 instances)
+
+| Type | Instances | Détecté v1.1.4 |
+|------|-----------|----------------|
+| Weak_Encryption_RC4_With_AES | 5 | ❌ Non |
+| SERVER_NO_ADMIN_GROUP | 4 | ❌ Non |
+| Weak_Encryption_Flag | 3 | ✅ Oui |
+| LAPS_PasswordRead | 3 | ❌ Non |
+| WriteSPN_Abuse | 2 | ✅ Oui |
+| Everyone_In_ACLs | 2 | ❌ Non |
+| DCSync_Rights | 2 | ❌ Non |
+| Dangerous_Logon_Script | 2 | ❌ Non |
+| SMB_V1_ENABLED | 1 | ❌ Non |
+| RECYCLE_BIN_DISABLED | 1 | ✅ Oui |
+| POWERSHELL_LOGGING_DISABLED | 1 | ❌ Non |
+| NTLM_RELAY_OPPORTUNITY | 1 | ✅ Oui |
+| LDAP_CHANNEL_BINDING_DISABLED | 1 | ❌ Non |
+| LAPS_Password_Leaked | 1 | ❌ Non |
+| Everyone_In_ACL | 1 | ✅ Oui |
+| Authenticated_Users_In_ACLs | 1 | ❌ Non |
+| AUDIT_POLICY_WEAK | 1 | ❌ Non |
+| ANONYMOUS_LDAP_ACCESS | 1 | ❌ Non |
 
 ---
 
-## 🔍 Commandes de Détection Rapide
+## 📊 Statistiques
 
-```powershell
-# Scan complet de toutes les vulnérabilités
-Get-ADUser -Filter * -Properties * | Select-Object Name, SamAccountName,
-    PasswordNeverExpires, DoesNotRequirePreAuth, ServicePrincipalNames,
-    TrustedForDelegation, AdminCount, SIDHistory, Enabled
+### Par statut de détection v1.1.4
 
-# Vérifier les groupes sensibles
-@("Domain Admins","Enterprise Admins","Schema Admins","Account Operators",
-  "Backup Operators","Server Operators","DnsAdmins") |
-    ForEach-Object { Get-ADGroupMember $_ }
+| Status | Count | % |
+|--------|-------|---|
+| ❌ Non détecté | 86 | 62.3% |
+| ✅ Détecté | 49 | 35.5% |
+| 🚨 Bug (dans AD mais non détecté) | 3 | 2.2% |
 
-# Chercher les ACLs dangereuses
-Get-ADObject -Filter * -Properties nTSecurityDescriptor |
-    Where-Object {$_.nTSecurityDescriptor.Access -match "Everyone|Authenticated Users"}
-```
+### Par statut de vérification dans AD
+
+| Statut | Count | % |
+|--------|-------|---|
+| ❓ Non vérifié | 123 | 89.1% |
+| ✅ Confirmé dans AD | 10 | 7.2% |
+| ❌ NON dans AD (bug injection) | 3 | 2.2% |
+| ⚠️ Inconnu/Erreur | 2 | 1.4% |
 
 ---
 
-**⚠️ AVERTISSEMENT**: Cet environnement est INTENTIONNELLEMENT vulnérable.
-Ne jamais utiliser en production. À des fins de test et formation uniquement.
+## 🎯 Prochaines étapes
 
-**Script**: Populate-AD-GlobalCorp.ps1
-**Version**: 2.0 (Optimisé)
-**Domaine**: aza-me.cc
-**Date**: Décembre 2025
+### Urgent
+
+1. ✅ **Corriger les 3 bugs critiques du collecteur**
+   - PASSWORD_NEVER_EXPIRES
+   - GPO_PASSWORD_IN_SYSVOL
+   - COMPUTER_STALE_INACTIVE
+
+2. ✅ **Fixer le script d'injection**
+   - Computer_Old_Password (0/17 trouvé)
+   - Computer_Duplicate_SPN (0/1 trouvé)
+   - Computer_Pre_Win2000 (0/1 trouvé)
+
+3. ✅ **Vérifier les 123 types restants** dans l'AD
+
+### Moyen terme
+
+4. ✅ Calculer le vrai taux de détection (seulement sur vulns confirmées)
+5. ✅ Créer baseline AD (avant injection)
+6. ✅ Tests automatisés de détection
+
+---
+
+**Dernière mise à jour:** 2026-01-30 22:40
+**Source:** GlobalCorp_Vulnerabilities_20260130_174331.csv + vérification AD
+**Fichiers:**
+- `docs/audit/v1.1.4/detection-comparison.md` - Analyse détaillée v1.1.4
+- `docs/audit/v1.1.4/vulns-really-in-ad.md` - Vérification complète
+- `docs/audit/v1.1.4/vulns-not-in-ad.txt` - Liste des manquantes
