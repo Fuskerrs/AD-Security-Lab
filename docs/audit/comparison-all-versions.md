@@ -1,209 +1,244 @@
-# Comparaison complète - v1.1.1 vs v1.1.3 vs v1.1.4
+# Comparaison détection - v1.1.1 vs v1.1.3 vs v1.1.4
 
 **Date:** 2026-01-30
 **Environnement:** GlobalCorp AD Lab (aza-me.cc)
-**Vulnérabilités injectées:** 470 instances de 138 types
 
 ---
 
-## 📊 Vue d'ensemble
+## 📊 Vulnérabilités injectées
 
-| Métrique | v1.1.1 | v1.1.3 | v1.1.4 | Évolution |
-|----------|--------|--------|--------|-----------|
-| **Score** | 0/100 | 26/100 | 26/100 | 🟢 +26 |
-| **Rating** | Critical | Critical | Critical | = |
-| **Findings** | 19,246 ACEs | 6,501 objects | 6,501 objects | 🟢 Meilleure métrique |
-| **Instances** | N/A | 19,246 ACEs | 19,246 ACEs | 🟢 Ajouté pour forensics |
-| **Types détectés** | 100 | 97 | 98 | = |
-| **Types matchés** | 52 | 52 | 52 | = |
-| **Taux détection** | 37.7% | 37.7% | 37.7% | = |
-| **Durée** | 3.5s | 0.96s | 3.5s | ⚠️ Variable |
+**Total:** 470 instances de 138 types uniques
 
----
+### Breakdown par catégorie
 
-## 🎯 Innovations par version
-
-### v1.1.1 - ACE Counting (Baseline)
-
-**Approche:**
-- Comptage brut de toutes les ACEs
-- 1 vulnérabilité ACL → 4,349 ACEs → 4,349 findings
-
-**Problèmes:**
-- Score 0/100 (trop sévère)
-- 19,246 findings (confus pour le client)
-- Compte les ACEs, pas les objets à corriger
-
-**Avantages:**
-- Détails forensics complets
-- Rien n'est caché
-- Transparence totale
-
-**Structure:**
-```json
-{
-  "risk": {
-    "score": 0,
-    "findings": {
-      "total": 19246  // ACEs
-    }
-  }
-}
-```
+| Catégorie | Types injectés |
+|-----------|----------------|
+| Computers | 27 |
+| Accounts | 25 |
+| Advanced | 22 |
+| Permissions | 15 |
+| Passwords | 14 |
+| Kerberos | 12 |
+| ADCS | 11 |
+| Groups | 11 |
+| GPO | 9 |
+| Attack Paths | 7 |
+| Service Accounts | 5 |
+| Trusts | 0 |
 
 ---
 
-### v1.1.3 - Hybrid Approach (Object + Instances)
+## 🎯 v1.1.1 - Détection
 
-**Approche:**
-- Déduplication par objectDn (6,501 objets uniques)
-- Conservation des instances pour forensics (19,246 ACEs)
-- Structure hybride: `count` + `totalInstances`
+### Résumé
+- **Score:** 0/100 (critical)
+- **Findings:** 19,246 ACEs
+- **Types détectés:** 100
+- **Match avec injectés:** 52/138 = **37.7%**
 
-**Améliorations:**
-- Score 26/100 (plus réaliste)
-- 6,501 objects (actionable pour SysAdmin)
-- 19,246 instances (forensics pour pentester)
+### ✅ Détectés (52 types)
 
-**Avantages:**
-- Satisfait 3 audiences (RSSI, SysAdmin, Pentester)
-- Score calculé sur objets (industrie standard)
-- Détails ACEs conservés pour drill-down
+1. ACCOUNT_OPERATORS_MEMBER
+2. ADMIN_NO_SMARTCARD
+3. ADMINSDHOLDER_BACKDOOR
+4. ASREP_ROASTING_RISK
+5. BACKUP_OPERATORS_MEMBER
+6. BUILTIN_MODIFIED
+7. COMPUTER_ADMIN_COUNT
+8. COMPUTER_DESCRIPTION_SENSITIVE
+9. COMPUTER_IN_ADMIN_GROUP
+10. COMPUTER_LEGACY_PROTOCOL
+11. COMPUTER_NEVER_LOGGED_ON
+12. COMPUTER_NO_BITLOCKER
+13. COMPUTER_OS_OBSOLETE_2003
+14. COMPUTER_OS_OBSOLETE_2008
+15. COMPUTER_OS_OBSOLETE_VISTA
+16. COMPUTER_OS_OBSOLETE_XP
+17. COMPUTER_UNCONSTRAINED_DELEGATION
+18. COMPUTER_WEAK_ENCRYPTION
+19. COMPUTER_WITH_SPNS
+20. COMPUTER_WRONG_OU
+21. CONSTRAINED_DELEGATION
+22. DANGEROUS_GROUP_NESTING
+23. DISABLED_ACCOUNT_IN_ADMIN_GROUP
+24. DNS_ADMINS_MEMBER
+25. DOMAIN_ADMIN_IN_DESCRIPTION
+26. ESC10_WEAK_CERTIFICATE_MAPPING
+27. ESC11_ICERT_REQUEST_ENFORCEMENT
+28. ESC3_ENROLLMENT_AGENT
+29. ESC4_VULNERABLE_TEMPLATE_ACL
+30. ESC5_PKI_OBJECT_ACL
+31. ESC7_CA_VULNERABLE_ACL
+32. ESC8_HTTP_ENROLLMENT
+33. ESC9_NO_SECURITY_EXTENSION
+34. EVERYONE_IN_ACL
+35. EXPIRED_ACCOUNT_IN_ADMIN_GROUP
+36. GPO_LAPS_NOT_DEPLOYED
+37. GROUP_PROTECTED_USERS_EMPTY
+38. INACTIVE_365_DAYS
+39. NEVER_LOGGED_ON
+40. NOT_IN_PROTECTED_USERS
+41. OVERSIZED_GROUP_HIGH
+42. PASSWORD_NOT_REQUIRED
+43. PASSWORD_VERY_OLD
+44. PRINT_OPERATORS_MEMBER
+45. RECYCLE_BIN_DISABLED
+46. SENSITIVE_DELEGATION
+47. SERVER_OPERATORS_MEMBER
+48. SERVICE_ACCOUNT_INTERACTIVE
+49. SERVICE_ACCOUNT_NAMING
+50. SERVICE_ACCOUNT_NO_PREAUTH
+51. SERVICE_ACCOUNT_OLD_PASSWORD
+52. SERVICE_ACCOUNT_PRIVILEGED
 
-**Structure:**
-```json
-{
-  "risk": {
-    "score": 26,
-    "findings": {
-      "total": 6501,         // Objects
-      "totalInstances": 19246 // ACEs
-    }
-  },
-  "findings": [
-    {
-      "type": "ACL_WRITEDACL",
-      "count": 774,           // Unique objects
-      "totalInstances": 4349  // Total ACEs
-    }
-  ]
-}
-```
+### ❌ Non détectés (86 types)
+
+**ACL/Permissions (11)**
+- ACL_ADDMEMBER
+- ACL_DCSYNC
+- ACL_GENERICALL_DA
+- ACL_GENERICWRITE_SENSITIVEGROUP
+- ACL_GENERICWRITE_USER
+- ACL_WRITEDACL_OU
+- ACL_WRITEDACL_SENSITIVEGROUP
+- ACL_WRITEOWNER_SENSITIVEGROUP
+- NESTEDGROUPPATH
+- ORPHANED_ACES
+
+**Computers (15)**
+- COMPUTER_ACL_GENERICALL
+- COMPUTER_DISABLED_NOT_DELETED
+- COMPUTER_DUPLICATE_SPN
+- COMPUTER_LEGACY_PROTOCOL_SMBV1
+- COMPUTER_LOCAL_ADMIN_MAPPING
+- COMPUTER_NO_LAPS
+- COMPUTER_OLD_PASSWORD
+- COMPUTER_PRE_CREATED
+- COMPUTER_PRE_WIN2000
+- COMPUTER_RBCD
+- COMPUTER_SENSITIVE_DESCRIPTION
+- COMPUTER_SMB_SIGNING_DISABLED
+- COMPUTER_STALE_INACTIVE
+- COMPUTER_WEAK_LAPS
+- DUPLICATE_SPN
+
+**Passwords (6)**
+- EMPTY_PASSWORD
+- PASSWORDINDESCRIPTION
+- PASSWORDNEVEREXPIRES
+- PASSWORDNOTREQUIRED
+- REVERSIBLEENCRYPTION
+- UNIXUSERPASSWORD_CLEAR
+
+**Kerberos (5)**
+- ASREPROASTABLE
+- KERBEROASTABLE
+- KERBEROASTABLE_WEAKPASSWORD
+- KERBEROS_TICKET_LIFETIME_LONG
+- UNCONSTRAINEDDELEGATION
+
+**Accounts (12)**
+- ADMIN_SD_HOLDER_MODIFIED
+- ADMINCOUNT_ORPHANED
+- DISABLEDACCOUNTINPRIVGROUP
+- FOREIGN_SECURITY_PRINCIPALS
+- NOTINPROTECTEDUSERS
+- SEENABLEDELEGATIONPRIVILEGE
+- SHADOW_CREDENTIALS
+- SIDHISTORY
+- STALEACCOUNT
+- SUSPICIOUSACCOUNTNAME
+- SUSPICIOUSSIDPROPERTIES
+- USER_CANNOT_CHANGE_PASSWORD
+
+**Groups (3)**
+- GPO_CREATOR_OWNERS_MEMBER
+- OVERSIZED_GROUP_CRITICAL
+- ULTRA_VULNERABLE_USER
+
+**ADCS (2)**
+- ESC1_VULNERABLE_CERTIFICATE_TEMPLATE
+- ESC2_ANY_PURPOSE_EKU
+
+**GPO (4)**
+- GPO_AUTHENTICATED_USERS_APPLY
+- GPO_LINKPOISONING
+- GPO_NO_SECURITY_FILTERING
+- GPO_PASSWORD_IN_SYSVOL
+
+**Advanced/Config (10)**
+- ANONYMOUS_LDAP_ACCESS
+- AUDIT_POLICY_WEAK
+- AUTHENTICATED_USERS_IN_ACLS
+- DANGEROUS_LOGON_SCRIPT
+- LAPS_PASSWORD_LEAKED
+- LAPS_PASSWORDREAD
+- LDAP_CHANNEL_BINDING_DISABLED
+- POWERSHELL_LOGGING_DISABLED
+- SERVER_NO_ADMIN_GROUP
+- SMB_V1_ENABLED
+
+**Excessive Privileges (8)**
+- EXCESSIVEPRIVILEGES_AO
+- EXCESSIVEPRIVILEGES_BO
+- EXCESSIVEPRIVILEGES_DA
+- EXCESSIVEPRIVILEGES_DNS
+- EXCESSIVEPRIVILEGES_ENTERPRISEADMIN
+- EXCESSIVEPRIVILEGES_PRINTOPS
+- EXCESSIVEPRIVILEGES_RDP
+- EXCESSIVEPRIVILEGES_SCHEMAADMIN
+
+**Attack Paths (7)**
+- PATH_ASREP_TO_ADMIN
+- PATH_CERTIFICATE_ESC
+- PATH_DELEGATION_CHAIN
+- PATH_GPO_TO_DA
+- PATH_NESTED_ADMIN
+- PATH_SERVICE_TO_DA
+- PATH_TRUST_LATERAL
+
+**Others (3)**
+- CONSTRAINEDDELEGATION
+- DCSYNC_RIGHTS
+- WEAK_ENCRYPTION_RC4_WITH_AES
 
 ---
 
-### v1.1.4 - Type Name Normalizer
+## 🎯 v1.1.3 - Détection
 
-**Approche:**
-- ~150 mappings de variations de nommage
-- Normalisation automatique dans response-formatter
-- Format canonique: UPPERCASE_WITH_UNDERSCORES
+### Résumé
+- **Score:** 26/100 (critical)
+- **Findings:** 6,501 objects (19,246 instances)
+- **Types détectés:** 97
+- **Match avec injectés:** 52/138 = **37.7%**
 
-**Améliorations:**
-- Cohérence des noms de types
-- Harmonisation avec industrie (PingCastle, Purple Knight)
-- Facilite comparaison et reporting
+### ✅ Détectés (52 types)
 
-**Avantages:**
-- Output plus professionnel
-- Noms prévisibles
-- Meilleure intégration
+**IDENTIQUE à v1.1.1** - Mêmes 52 types détectés.
 
-**Limitations:**
-- **Taux de détection inchangé** (37.7%)
-- Le normalizer ne détecte pas, il renomme
-- Détecteurs manquants toujours manquants
+### ❌ Non détectés (86 types)
 
-**Exemples de normalisation:**
-```
-PasswordNeverExpires → PASSWORD_NEVER_EXPIRES
-AsRepRoastable → ASREP_ROASTING_RISK
-UnconstrainedDelegation → UNCONSTRAINED_DELEGATION
-Kerberoastable → KERBEROASTING_RISK
-ReversibleEncryption → REVERSIBLE_ENCRYPTION
-```
+**IDENTIQUE à v1.1.1** - Mêmes 86 types non détectés.
+
+### Changements vs v1.1.1
+- ✅ Score: 0 → 26
+- ✅ Comptage: ACEs → Objects
+- ✅ Structure hybride: count + totalInstances
+- ❌ Détection: AUCUN changement
 
 ---
 
-## 🔍 Analyse comparative détaillée
+## 🎯 v1.1.4 - Détection
 
-### Score de sécurité
+### Résumé
+- **Score:** 26/100 (critical)
+- **Findings:** 6,501 objects (19,246 instances)
+- **Types détectés:** 98
+- **Match avec injectés:** 52/138 = **37.7%**
 
-| Version | Score | Calcul | Justification |
-|---------|-------|--------|---------------|
-| v1.1.1 | 0/100 | Basé sur 19,246 ACEs | Trop sévère, compte chaque ACE |
-| v1.1.3 | 26/100 | Basé sur 6,501 objects | Industrie standard (objets uniques) |
-| v1.1.4 | 26/100 | Basé sur 6,501 objects | Identique à v1.1.3 |
+### ✅ Détectés (52 types)
 
-**Conclusion:** v1.1.3+ utilise le bon calcul (objets au lieu d'ACEs).
-
----
-
-### Breakdown par sévérité
-
-#### v1.1.1 (ACEs)
-| Sévérité | Count | % |
-|----------|-------|---|
-| Critical | 264 | 1.4% |
-| High | 16,339 | 84.9% |
-| Medium | 2,555 | 13.3% |
-| Low | 88 | 0.5% |
-| **TOTAL** | **19,246** | 100% |
-
-#### v1.1.3 & v1.1.4 (Objects)
-| Sévérité | Count | % |
-|----------|-------|---|
-| Critical | 184 | 2.8% |
-| High | 3,852 | 59.3% |
-| Medium | 2,377 | 36.6% |
-| Low | 88 | 1.4% |
-| **TOTAL** | **6,501** | 100% |
-
-**Observation:**
-- High: 84.9% (ACEs) → 59.3% (Objects) = Meilleure proportion
-- La distribution par sévérité est plus équilibrée avec les objets
-
----
-
-### Types détectés
-
-| Version | Total types | Critical | High | Medium | Low |
-|---------|-------------|----------|------|--------|-----|
-| v1.1.1 | 100 | 15 | 44 | 40 | 4 |
-| v1.1.3 | 97 | - | - | - | - |
-| v1.1.4 | 98 | - | - | - | - |
-
-**Observations:**
-- v1.1.3 a 3 types de moins (97 vs 100)
-- v1.1.4 a 1 type de plus (98 vs 97)
-- Mais le match avec injectés est identique: **52 types**
-
----
-
-### Taux de détection par catégorie
-
-#### v1.1.1
-| Catégorie | Injectés | Détectés | Taux |
-|-----------|----------|----------|------|
-| ADCS | 11 | 9 | 82% |
-| Groups | 11 | 8 | 73% |
-| Kerberos | 12 | 7 | 58% |
-| Accounts | 25 | 13 | 52% |
-| Computers | 27 | 12 | 44% |
-| Advanced | 22 | 9 | 41% |
-| Passwords | 14 | 3 | 21% |
-| Permissions | 15 | 3 | 21% |
-| GPO | 5 | 0 | 0% |
-| Attack Paths | 7 | 0 | 0% |
-
-#### v1.1.3 & v1.1.4
-**Identique à v1.1.1** - Le taux de détection n'a pas changé.
-
----
-
-## 🎯 Types détectés (52 types communs)
-
-Ces 52 types sont détectés dans **TOUTES** les versions:
+**IDENTIQUE à v1.1.1 et v1.1.3** - Mêmes 52 types détectés.
 
 1. ACCOUNT_OPERATORS_MEMBER
 2. ACL_FORCECHANGEPASSWORD
@@ -258,13 +293,94 @@ Ces 52 types sont détectés dans **TOUTES** les versions:
 51. WEAK_PASSWORD_POLICY
 52. WRITESPN_ABUSE
 
----
+### ❌ Non détectés (86 types)
 
-## ❌ Types NON détectés (86 types communs)
+**IDENTIQUE à v1.1.1 et v1.1.3** - Mêmes 86 types non détectés.
 
-Ces 86 types ne sont détectés dans **AUCUNE** version:
+**ACL/Permissions (8)**
+- ACL_ADDMEMBER
+- ACL_DCSYNC
+- ACL_GENERICALL_DA
+- ACL_GENERICWRITE_SENSITIVEGROUP
+- ACL_GENERICWRITE_USER
+- ACL_WRITEDACL_OU
+- ACL_WRITEDACL_SENSITIVEGROUP
+- ACL_WRITEOWNER_SENSITIVEGROUP
 
-### Attack Paths (7) - 0% détection
+**Computers (14)**
+- COMPUTER_ACL_GENERICALL
+- COMPUTER_DISABLED_NOT_DELETED
+- COMPUTER_DUPLICATE_SPN
+- COMPUTER_LEGACY_PROTOCOL_SMBV1
+- COMPUTER_LOCAL_ADMIN_MAPPING
+- COMPUTER_OLD_PASSWORD
+- COMPUTER_PRE_CREATED
+- COMPUTER_PRE_WIN2000
+- COMPUTER_RBCD
+- COMPUTER_SENSITIVE_DESCRIPTION
+- COMPUTER_SMB_SIGNING_DISABLED
+- COMPUTER_STALE_INACTIVE
+- COMPUTER_WEAK_LAPS
+- DUPLICATE_SPN
+
+**Passwords (4)**
+- EMPTY_PASSWORD
+- PASSWORDINDESCRIPTION
+- PASSWORDNEVEREXPIRES
+- REVERSIBLEENCRYPTION
+
+**Kerberos (4)**
+- ASREPROASTABLE
+- KERBEROASTABLE
+- KERBEROASTABLE_WEAKPASSWORD
+- UNCONSTRAINEDDELEGATION
+
+**Accounts (11)**
+- ADMIN_SD_HOLDER_MODIFIED
+- ADMINCOUNT_ORPHANED
+- DISABLEDACCOUNTINPRIVGROUP
+- FOREIGN_SECURITY_PRINCIPALS
+- NOTINPROTECTEDUSERS
+- ORPHANED_ACES
+- SEENABLEDELEGATIONPRIVILEGE
+- SHADOW_CREDENTIALS
+- SIDHISTORY
+- STALEACCOUNT
+- SUSPICIOUSACCOUNTNAME
+
+**Groups (3)**
+- GPO_CREATOR_OWNERS_MEMBER
+- OVERSIZED_GROUP_CRITICAL
+- ULTRA_VULNERABLE_USER
+
+**GPO (4)**
+- GPO_AUTHENTICATED_USERS_APPLY
+- GPO_LINKPOISONING
+- GPO_NO_SECURITY_FILTERING
+- GPO_PASSWORD_IN_SYSVOL
+
+**Advanced/Config (10)**
+- ANONYMOUS_LDAP_ACCESS
+- AUDIT_POLICY_WEAK
+- AUTHENTICATED_USERS_IN_ACLS
+- DANGEROUS_LOGON_SCRIPT
+- LAPS_PASSWORD_LEAKED
+- LAPS_PASSWORDREAD
+- LDAP_CHANNEL_BINDING_DISABLED
+- POWERSHELL_LOGGING_DISABLED
+- SERVER_NO_ADMIN_GROUP
+- SMB_V1_ENABLED
+
+**Excessive Privileges (7)**
+- EXCESSIVEPRIVILEGES_AO
+- EXCESSIVEPRIVILEGES_BO
+- EXCESSIVEPRIVILEGES_DA
+- EXCESSIVEPRIVILEGES_DNS
+- EXCESSIVEPRIVILEGES_ENTERPRISEADMIN
+- EXCESSIVEPRIVILEGES_PRINTOPS
+- EXCESSIVEPRIVILEGES_RDP
+
+**Attack Paths (7)**
 - PATH_ASREP_TO_ADMIN
 - PATH_CERTIFICATE_ESC
 - PATH_DELEGATION_CHAIN
@@ -273,241 +389,56 @@ Ces 86 types ne sont détectés dans **AUCUNE** version:
 - PATH_SERVICE_TO_DA
 - PATH_TRUST_LATERAL
 
-### GPO (4) - 11% détection (1/9 seulement)
-- GPO_AUTHENTICATED_USERS_APPLY
-- GPO_LINKPOISONING
-- GPO_NO_SECURITY_FILTERING
-- GPO_PASSWORD_IN_SYSVOL
-
-### Computers (15) - 44% détection
-- COMPUTER_ACL_GENERICALL
-- COMPUTER_DISABLED_NOT_DELETED
-- COMPUTER_DUPLICATE_SPN
-- COMPUTER_LEGACY_PROTOCOL_SMBV1
-- COMPUTER_LOCAL_ADMIN_MAPPING
-- COMPUTER_OLD_PASSWORD (17 instances!)
-- COMPUTER_PRE_CREATED (15 instances!)
-- COMPUTER_PRE_WIN2000
-- COMPUTER_RBCD
-- COMPUTER_SENSITIVE_DESCRIPTION
-- COMPUTER_SMB_SIGNING_DISABLED
-- COMPUTER_STALE_INACTIVE (17 instances!)
-- COMPUTER_WEAK_LAPS
-- DUPLICATE_SPN
-
-### Passwords (6) - 21% détection
-- EMPTY_PASSWORD
-- PASSWORDINDESCRIPTION
-- PASSWORDNEVEREXPIRES (→ PASSWORD_NEVER_EXPIRES)
-- PASSWORDNOTREQUIRED (→ PASSWORD_NOT_REQUIRED)
-- REVERSIBLEENCRYPTION (→ REVERSIBLE_ENCRYPTION)
+**Others (14)**
+- CONSTRAINEDDELEGATION
+- DCSYNC_RIGHTS
+- NESTEDGROUPPATH
+- PASSWORDNOTREQUIRED
+- SUSPICIOUSSIDPROPERTIES
 - UNIXUSERPASSWORD_CLEAR
+- USER_CANNOT_CHANGE_PASSWORD
+- WEAK_ENCRYPTION_RC4_WITH_AES
+- ESC1_VULNERABLE_CERTIFICATE_TEMPLATE
+- ESC2_ANY_PURPOSE_EKU
+- EXCESSIVEPRIVILEGES_SCHEMAADMIN
 
-### ACL/Permissions (8)
-- ACL_ADDMEMBER (5 instances)
-- ACL_DCSYNC
-- ACL_GENERICALL_DA
-- ACL_GENERICWRITE_SENSITIVEGROUP (5 instances)
-- ACL_GENERICWRITE_USER (5 instances)
-- ACL_WRITEDACL_OU (5 instances)
-- ACL_WRITEDACL_SENSITIVEGROUP
-- ACL_WRITEOWNER_SENSITIVEGROUP
-
-### Autres catégories (46)
-Voir `v1.1.4/analysis-v1.1.4.md` pour la liste complète.
+### Changements vs v1.1.3
+- ✅ Noms normalisés (UPPERCASE_WITH_UNDERSCORES)
+- ✅ Type Name Normalizer (~150 mappings)
+- ❌ Détection: AUCUN changement
 
 ---
 
-## 📈 Évolution du code
+## 📊 Tableau comparatif
 
-### v1.1.1 → v1.1.3
-
-**Changements:**
-```typescript
-// Avant (v1.1.1)
-findings.total = allACEs.length; // 19,246
-
-// Après (v1.1.3)
-const uniqueObjects = getUniqueObjects(allACEs);
-findings.total = uniqueObjects.length; // 6,501
-findings.totalInstances = allACEs.length; // 19,246
-
-function getUniqueObjects(entities) {
-  const seen = new Set();
-  return entities.filter(e => {
-    if (seen.has(e.objectDn)) return false;
-    seen.add(e.objectDn);
-    return true;
-  });
-}
-```
-
-**Fichiers modifiés:**
-- `src/services/audit/response-formatter.ts`
-- `src/utils/deduplication.ts` (nouveau)
+| Version | Score | Findings | Détectés | Match | Taux | Innovation |
+|---------|-------|----------|----------|-------|------|------------|
+| v1.1.1 | 0/100 | 19,246 ACEs | 100 | 52/138 | 37.7% | ACE counting |
+| v1.1.3 | 26/100 | 6,501 objects | 97 | 52/138 | 37.7% | Hybrid structure |
+| v1.1.4 | 26/100 | 6,501 objects | 98 | 52/138 | 37.7% | Type normalizer |
 
 ---
 
-### v1.1.3 → v1.1.4
+## 🎯 Conclusion
 
-**Changements:**
-```typescript
-// Nouveau fichier: src/utils/type-name-normalizer.ts
-const typeNameMap = {
-  'PasswordNeverExpires': 'PASSWORD_NEVER_EXPIRES',
-  'AsRepRoastable': 'ASREP_ROASTING_RISK',
-  'UnconstrainedDelegation': 'UNCONSTRAINED_DELEGATION',
-  // ... ~150 mappings
-};
+### Ce qui a changé
+- ✅ **Score:** 0 → 26 (v1.1.3)
+- ✅ **Méthodologie:** ACEs → Objects (v1.1.3)
+- ✅ **Structure:** Hybride objects+instances (v1.1.3)
+- ✅ **Noms:** Normalisés (v1.1.4)
 
-function normalizeTypeName(rawType: string): string {
-  return typeNameMap[rawType] || rawType.toUpperCase();
-}
+### Ce qui N'a PAS changé
+- ❌ **Taux de détection:** 37.7% (constant)
+- ❌ **Types détectés:** 52/138 (constant)
+- ❌ **Types manquants:** 86 (constant)
 
-// Intégration dans response-formatter.ts
-findings.forEach(f => {
-  f.type = normalizeTypeName(f.type);
-});
-```
+### Priorités v1.1.5+
+1. **Attack Paths:** 0/7 détectés (0%)
+2. **GPO:** 1/9 détectés (11%)
+3. **Computers:** 12/27 détectés (44%)
 
-**Fichiers modifiés:**
-- `src/utils/type-name-normalizer.ts` (nouveau)
-- `src/services/audit/response-formatter.ts`
+**Objectif v1.2.0:** 70%+ de couverture (95+/138 types)
 
 ---
 
-## 🎯 Impact sur les audiences
-
-### RSSI (Risk Officer)
-
-| Version | Métrique | Impact |
-|---------|----------|--------|
-| v1.1.1 | Score: 0/100, 19k findings | ❌ Inacceptable |
-| v1.1.3 | Score: 26/100, 6.5k objects | ✅ Compréhensible |
-| v1.1.4 | Score: 26/100, 6.5k objects | ✅ Identique |
-
-**Verdict:** v1.1.3+ est bien plus clair pour présenter au management.
-
----
-
-### SysAdmin (Correction)
-
-| Version | Métrique | Impact |
-|---------|----------|--------|
-| v1.1.1 | 19,246 ACEs à corriger | ❌ Confus (ACEs != Objets) |
-| v1.1.3 | 6,501 objets à corriger | ✅ Actionable |
-| v1.1.4 | 6,501 objets, noms clairs | ✅ Meilleur |
-
-**Verdict:** v1.1.4 est le meilleur pour l'action (noms normalisés + objets uniques).
-
----
-
-### Pentester (Forensics)
-
-| Version | Métrique | Impact |
-|---------|----------|--------|
-| v1.1.1 | 19,246 ACEs détaillées | ✅ Complet |
-| v1.1.3 | 6,501 objects + 19,246 instances | ✅ Hybride parfait |
-| v1.1.4 | Identique + noms normalisés | ✅ Optimal |
-
-**Verdict:** v1.1.3+ conserve tous les détails forensics (totalInstances).
-
----
-
-## 🏆 Classement par cas d'usage
-
-### Meilleure pour le score: v1.1.3 & v1.1.4
-- Score réaliste (26/100)
-- Méthodologie industrie standard
-- Basé sur objets, pas ACEs
-
-### Meilleure pour l'action: v1.1.4
-- Noms de types normalisés
-- Objets uniques à corriger
-- Cohérence professionnelle
-
-### Meilleure pour le forensics: v1.1.3 & v1.1.4
-- Conservation de totalInstances
-- Drill-down possible
-- Aucun détail perdu
-
-### Meilleure pour la détection: Aucune
-- Les 3 versions détectent exactement les mêmes 52 types
-- Taux: 37.7% constant
-- Besoin d'améliorer les détecteurs (pas juste la présentation)
-
----
-
-## 🔮 Recommandations
-
-### Court terme
-
-1. ✅ **Utiliser v1.1.4** en production
-   - Structure hybride (objects + instances)
-   - Noms normalisés
-   - Score réaliste
-
-2. ❌ **Ne pas rester sur v1.1.1**
-   - Score 0/100 inacceptable
-   - Comptage ACE confus
-   - Présentation non-professionnelle
-
-### Moyen terme
-
-**v1.1.5 - Attack Paths Detection**
-- Implémenter les 7 types Attack Paths
-- Objectif: 37.7% → 42-45%
-
-**v1.1.6 - GPO Security**
-- Implémenter les 4 types GPO manquants
-- Objectif: 45% → 48-50%
-
-**v1.1.7 - Computer Detection**
-- Corriger les 15 types Computer manquants
-- Objectif: 50% → 55-58%
-
-### Long terme
-
-**v1.2.0 - Coverage Goal**
-- Objectif: 70%+ de couverture
-- Implémenter Passwords (6 types)
-- Implémenter Advanced (10 types)
-- Implémenter ACL avancés (8 types)
-
----
-
-## 📊 Conclusion finale
-
-### Ce qui a changé entre les versions
-
-| Aspect | Changement |
-|--------|------------|
-| **Méthodologie de comptage** | 🟢 ACEs → Objects (v1.1.3) |
-| **Structure de données** | 🟢 Hybride objects+instances (v1.1.3) |
-| **Cohérence des noms** | 🟢 Normalizer (v1.1.4) |
-| **Score** | 🟢 0 → 26 (v1.1.3) |
-| **Présentation** | 🟢 Amélioration continue |
-
-### Ce qui n'a PAS changé
-
-| Aspect | Status |
-|--------|--------|
-| **Taux de détection** | 🔴 37.7% (constant) |
-| **Types détectés** | 🔴 52/138 (constant) |
-| **Détecteurs implémentés** | 🔴 Identiques |
-| **Attack Paths** | 🔴 0% (toujours) |
-| **GPO** | 🔴 11% (toujours) |
-
-### Verdict final
-
-**v1.1.4 est la meilleure version pour la présentation et le reporting**, mais:
-- ⚠️ **La détection n'a pas progressé**
-- ⚠️ **Il faut maintenant améliorer les détecteurs**, pas la présentation
-- ✅ **La structure est bonne**, il faut maintenant remplir les trous
-
-**Prochaine priorité:** Implémenter les détecteurs manquants (Attack Paths, GPO, Computers).
-
----
-
-**Généré le :** 2026-01-30 19:55
-**Auteur :** Analysis complète des 3 versions
+**Généré le:** 2026-01-30
