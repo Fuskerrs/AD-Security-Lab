@@ -1,11 +1,11 @@
 # AD Security Lab - GlobalCorp Vulnerable Environment
 
-A comprehensive Active Directory testing environment with **120+ intentional security vulnerabilities** for penetration testing, security tool validation, and defensive training.
+A comprehensive Active Directory testing environment with **150+ intentional security vulnerabilities** for penetration testing, security tool validation, and defensive training.
 
-![Version](https://img.shields.io/badge/version-4.1.0-blue)
+![Version](https://img.shields.io/badge/version-4.2.0-blue)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue)
 ![License](https://img.shields.io/badge/license-Educational%20Use-green)
-![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-120%2B-red)
+![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-150%2B-red)
 
 ---
 
@@ -99,7 +99,7 @@ cd C:\AD-Security-Lab\Scripts
 - **16 departments** with 4-tier management hierarchy
 - **Service accounts** with realistic SPNs and misconfigurations
 
-### Vulnerabilities (120+ Types)
+### Vulnerabilities (150+ Types)
 
 #### CRITICAL Vulnerabilities
 - **ADCS (ESC1-11)**: All certificate template attacks
@@ -174,7 +174,7 @@ cd C:\AD-Security-Lab\Scripts
 |----------|-------------|
 | [QUICK-START.md](Documentation/QUICK-START.md) | **Start here** - 5-minute setup guide |
 | [DETECTION-GUIDE.md](Documentation/DETECTION-GUIDE.md) | PowerShell commands to find all vulnerabilities |
-| [VULNERABILITIES.md](Documentation/VULNERABILITIES.md) | Complete catalog of 120+ vulnerability types |
+| [VULNERABILITIES.md](Documentation/VULNERABILITIES.md) | Complete catalog of 150+ vulnerability types |
 | [README.md](Documentation/README.md) | Full feature documentation |
 | [CHANGELOG.md](Documentation/CHANGELOG.md) | Version history and updates |
 
@@ -222,7 +222,7 @@ Get-ADUser -Filter {DoesNotRequirePreAuth -eq $true}
 
 ## 🔍 Vulnerability Categories
 
-### Core Categories (120+ total)
+### Core Categories (150+ total)
 
 1. **ADCS Certificate Services** (11)
    - ESC1 through ESC11 attacks

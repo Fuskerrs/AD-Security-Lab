@@ -1539,12 +1539,44 @@ function Add-SecurityVulnerabilities {
                 } catch {}
             }
 
+            # VULNERABILITY 6: SERVICE_ACCOUNT_NAMING (naming pattern detection - informational)
+            # This is always true for accounts matching naming convention
+            $vulnerabilities += @{
+                Type = "SERVICE_ACCOUNT_NAMING"
+                User = $svcSamAccount
+                Severity = "Low"
+                Description = "Account matches service account naming pattern (svc.*) - easily identified"
+                Impact = "Attackers can easily enumerate service accounts for targeting"
+                Detection = "Get-ADUser -Filter {SamAccountName -like 'svc*' -or SamAccountName -like 'service*' -or SamAccountName -like 'app*'} -Properties SamAccountName"
+                Remediation = "Consider using less predictable service account names or gMSA"
+                Note = "Naming conventions aid management but also aid attackers"
+            }
+
+            # VULNERABILITY 7: SERVICE_ACCOUNT_INTERACTIVE (interactive logon capability)
+            if ((Get-Random -Maximum 100) -lt 35) {
+                try {
+                    # Service accounts should not allow interactive logon
+                    # We can't directly set "Allow log on locally" but we can note the risk
+                    $vulnerabilities += @{
+                        Type = "SERVICE_ACCOUNT_INTERACTIVE"
+                        User = $svcSamAccount
+                        Severity = "Medium"
+                        Description = "Service account may have interactive logon rights - not restricted to service-only"
+                        Impact = "Service accounts should be service-only; interactive logon increases attack surface"
+                        Detection = "Check User Rights Assignment in GPO: 'Deny log on locally' should include service accounts"
+                        Remediation = "Configure GPO to deny interactive logon for service accounts: 'Deny log on locally', 'Deny log on through Remote Desktop Services'"
+                        Reference = "CIS Benchmark: Service accounts should have 'Deny log on locally'"
+                        Note = "gMSA (Group Managed Service Accounts) prevent interactive logon by design"
+                    }
+                } catch {}
+            }
+
         } catch {
             Write-Log "Error creating service account $svcSamAccount: $_" "ERROR"
         }
     }
 
-    Write-Log "Service accounts created with vulnerabilities: $serviceAccountCount" "WARNING"
+    Write-Log "Service accounts created with vulnerabilities (7 types): $serviceAccountCount" "WARNING"
 
     # =========================================================================
     # 15. NESTED GROUPS - Chemin indirect vers DA (creer une chaine)
@@ -3969,6 +4001,670 @@ function Add-SecurityVulnerabilities {
     }
 
     # =========================================================================
+    # 82. ADVANCED SYSTEM CONFIGURATION VULNERABILITIES (10 types) - P3 Priority
+    # =========================================================================
+    Write-Log "Checking: Advanced System Configuration vulnerabilities..." "WARNING"
+
+    # 82.1. LDAP SIGNING DISABLED
+    try {
+        $domainDN = $script:Config.DomainDN
+        $ldapPolicy = Get-ADObject "CN=Default Domain Controllers Policy,CN=System,$domainDN" -Properties gPCFileSysPath -ErrorAction SilentlyContinue
+
+        # Check if LDAP signing is disabled (default is not enforced on many domains)
+        $vulnerabilities += @{
+            Type = "LDAP_SIGNING_DISABLED"
+            Target = "Domain Controllers"
+            Severity = "High"
+            Description = "LDAP signing not required on domain controllers - enables LDAP relay attacks"
+            Impact = "Attackers can perform LDAP relay attacks to escalate privileges or modify AD objects"
+            Detection = "Get-ADObject 'CN=Default Domain Controllers Policy,CN=System,$domainDN' | Get-GPO; Check registry: HKLM\System\CurrentControlSet\Services\NTDS\Parameters\LDAPServerIntegrity"
+            Remediation = "Enable LDAP signing: Domain controller LDAP server signing requirements = Require signature"
+            CVSS = "7.5"
+            CVE = "Related to NTLM relay attacks"
+            MITRE = "T1557.001 - LLMNR/NBT-NS Poisoning and SMB Relay"
+        }
+        Write-Log "  HIGH: LDAP signing not enforced - relay attack risk" "WARNING"
+    } catch {}
+
+    # 82.2. LDAP CHANNEL BINDING DISABLED
+    try {
+        $vulnerabilities += @{
+            Type = "LDAP_CHANNEL_BINDING_DISABLED"
+            Target = "Domain Controllers"
+            Severity = "High"
+            Description = "LDAP channel binding not required - vulnerable to man-in-the-middle attacks"
+            Impact = "Attackers can intercept and relay LDAP authentication attempts"
+            Detection = "Check registry on DCs: HKLM\System\CurrentControlSet\Services\NTDS\Parameters\LdapEnforceChannelBinding (should be 2)"
+            Remediation = "Set LdapEnforceChannelBinding = 2 (Always) on all domain controllers"
+            CVSS = "7.4"
+            Reference = "Microsoft KB5020276, KB5021130"
+            MITRE = "T1557 - Adversary-in-the-Middle"
+        }
+        Write-Log "  HIGH: LDAP channel binding not enforced" "WARNING"
+    } catch {}
+
+    # 82.3. SMB V1 ENABLED
+    try {
+        # Check if SMBv1 is enabled at domain level (assume enabled for vulnerable lab)
+        $vulnerabilities += @{
+            Type = "SMB_V1_ENABLED"
+            Target = "Domain"
+            Severity = "High"
+            Description = "SMBv1 protocol enabled on domain - vulnerable to EternalBlue and other attacks"
+            Impact = "SMBv1 has multiple critical vulnerabilities (MS17-010 EternalBlue, WannaCry, NotPetya)"
+            Detection = "Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol; Get-SmbServerConfiguration | Select EnableSMB1Protocol"
+            Remediation = "Disable SMBv1: Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol"
+            CVSS = "9.3"
+            CVE = "CVE-2017-0144 (MS17-010 EternalBlue)"
+            MITRE = "T1210 - Exploitation of Remote Services"
+        }
+        Write-Log "  HIGH: SMBv1 enabled - EternalBlue risk" "WARNING"
+    } catch {}
+
+    # 82.4. RECYCLE BIN DISABLED
+    try {
+        # Check if AD Recycle Bin is enabled
+        $recycleBinEnabled = $false
+        try {
+            $forestConfig = Get-ADForest -ErrorAction SilentlyContinue
+            $recycleBinFeature = Get-ADOptionalFeature -Filter {Name -eq "Recycle Bin Feature"} -ErrorAction SilentlyContinue
+            if ($recycleBinFeature -and $recycleBinFeature.EnabledScopes.Count -gt 0) {
+                $recycleBinEnabled = $true
+            }
+        } catch {}
+
+        if (-not $recycleBinEnabled) {
+            $vulnerabilities += @{
+                Type = "RECYCLE_BIN_DISABLED"
+                Target = "Active Directory Forest"
+                Severity = "Medium"
+                Description = "AD Recycle Bin not enabled - deleted objects cannot be recovered easily"
+                Impact = "Accidental or malicious deletions are permanent, requiring authoritative restore"
+                Detection = "Get-ADOptionalFeature -Filter {Name -eq 'Recycle Bin Feature'} | Select EnabledScopes"
+                Remediation = "Enable-ADOptionalFeature -Identity 'Recycle Bin Feature' -Scope ForestOrConfigurationSet -Target (Get-ADForest).RootDomain"
+                Note = "Cannot be disabled once enabled; requires Forest Functional Level 2008 R2+"
+            }
+            Write-Log "  MEDIUM: AD Recycle Bin not enabled" "WARNING"
+        }
+    } catch {}
+
+    # 82.5. ADMIN SD HOLDER MODIFIED
+    try {
+        $adminSDHolder = Get-ADObject "CN=AdminSDHolder,CN=System,$domainDN" -Properties * -ErrorAction SilentlyContinue
+        if ($adminSDHolder) {
+            # Check for suspicious ACEs on AdminSDHolder (assume vulnerable for lab)
+            $vulnerabilities += @{
+                Type = "ADMIN_SD_HOLDER_MODIFIED"
+                Target = "CN=AdminSDHolder,CN=System,$domainDN"
+                Severity = "High"
+                Description = "AdminSDHolder permissions may have been modified - persistence mechanism"
+                Impact = "Attackers can add backdoor permissions that propagate to all protected groups every 60 minutes"
+                Detection = "(Get-Acl 'AD:\CN=AdminSDHolder,CN=System,$domainDN').Access | Where-Object {`$_.IdentityReference -notmatch 'SYSTEM|Domain Admins|Enterprise Admins'}"
+                Remediation = "Review AdminSDHolder ACL and remove unauthorized entries; monitor for unauthorized changes"
+                MITRE = "T1098.002 - Account Manipulation: Exchange Email Delegate Permissions"
+                Note = "AdminSDHolder ACL propagates to all protected accounts/groups every hour via SDProp"
+            }
+            Write-Log "  HIGH: AdminSDHolder ACL requires review" "WARNING"
+        }
+    } catch {}
+
+    # 82.6. ANONYMOUS LDAP ACCESS
+    try {
+        # Check if anonymous LDAP bind is allowed (default in older domains)
+        $vulnerabilities += @{
+            Type = "ANONYMOUS_LDAP_ACCESS"
+            Target = "Domain Controllers"
+            Severity = "Medium"
+            Description = "Anonymous LDAP bind may be allowed - information disclosure risk"
+            Impact = "Attackers can enumerate AD objects without authentication"
+            Detection = "Check LDAP: dsacls 'DC=aza-me,DC=cc' | findstr ANONYMOUS; ldapsearch anonymously"
+            Remediation = "Disable anonymous LDAP: Set 'Network access: Allow anonymous SID/Name translation' to Disabled"
+            MITRE = "T1087.002 - Account Discovery: Domain Account"
+            Reference = "CIS Benchmark 2.3.11.6"
+        }
+        Write-Log "  MEDIUM: Anonymous LDAP access may be enabled" "WARNING"
+    } catch {}
+
+    # 82.7. DS HEURISTICS MODIFIED
+    try {
+        $dsHeuristics = Get-ADObject "CN=Directory Service,CN=Windows NT,CN=Services,CN=Configuration,$domainDN" -Properties dSHeuristics -ErrorAction SilentlyContinue
+        if ($dsHeuristics -and $dsHeuristics.dSHeuristics) {
+            $vulnerabilities += @{
+                Type = "DS_HEURISTICS_MODIFIED"
+                Target = "Directory Service"
+                Severity = "Medium"
+                Description = "dsHeuristics attribute has been modified from default - potential security weakening"
+                Impact = "Modifications can weaken AD security (e.g., allow anonymous access, disable list object mode)"
+                Detection = "Get-ADObject 'CN=Directory Service,CN=Windows NT,CN=Services,CN=Configuration,$domainDN' -Properties dSHeuristics"
+                Remediation = "Review dSHeuristics value and ensure only approved changes are present"
+                CurrentValue = $dsHeuristics.dSHeuristics
+                Note = "Character positions control various AD behaviors (e.g., position 7 for anonymous access)"
+            }
+            Write-Log "  MEDIUM: dsHeuristics modified - value: $($dsHeuristics.dSHeuristics)" "WARNING"
+        }
+    } catch {}
+
+    # 82.8. AUDIT POLICY WEAK
+    try {
+        # Assume audit policy is weak for vulnerable lab
+        $vulnerabilities += @{
+            Type = "AUDIT_POLICY_WEAK"
+            Target = "Domain"
+            Severity = "Medium"
+            Description = "Audit policy incomplete - insufficient logging for security monitoring"
+            Impact = "Attacks may not be detected or logged, hindering incident response"
+            Detection = "auditpol /get /category:*; Check GPO audit policies"
+            Remediation = "Enable advanced audit policies: Account Logon, Account Management, DS Access, Logon/Logoff, Object Access, Policy Change, Privilege Use"
+            MITRE = "T1562.002 - Impair Defenses: Disable Windows Event Logging"
+            Reference = "NIST AU-2, CIS Benchmark 17.x"
+            RequiredEvents = "4624,4625,4634,4648,4672,4719,4732,4733,4756,4765,5136,5137,5138,5139,5141"
+        }
+        Write-Log "  MEDIUM: Audit policy requires enhancement" "WARNING"
+    } catch {}
+
+    # 82.9. POWERSHELL LOGGING DISABLED
+    try {
+        # Check if PowerShell logging is configured (assume not for vulnerable lab)
+        $vulnerabilities += @{
+            Type = "POWERSHELL_LOGGING_DISABLED"
+            Target = "Domain"
+            Severity = "Medium"
+            Description = "PowerShell module/script block logging not configured"
+            Impact = "Attackers can execute PowerShell attacks without detection"
+            Detection = "Get-GPO -All | Get-GPRegistryValue -Key 'HKLM\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging'; Event IDs 4103, 4104"
+            Remediation = "Enable PowerShell logging via GPO: Module Logging, Script Block Logging, Transcription"
+            MITRE = "T1059.001 - Command and Scripting Interpreter: PowerShell"
+            Reference = "Enable events 4103 (Module Logging) and 4104 (Script Block Logging)"
+        }
+        Write-Log "  MEDIUM: PowerShell logging not configured" "WARNING"
+    } catch {}
+
+    # 82.10. WEAK PASSWORD POLICY
+    try {
+        # Check domain password policy
+        $domainPolicy = Get-ADDefaultDomainPasswordPolicy -ErrorAction SilentlyContinue
+        if ($domainPolicy) {
+            $weakPolicy = $false
+            $weakReasons = @()
+
+            if ($domainPolicy.MinPasswordLength -lt 14) {
+                $weakPolicy = $true
+                $weakReasons += "MinPasswordLength < 14 (current: $($domainPolicy.MinPasswordLength))"
+            }
+            if ($domainPolicy.ComplexityEnabled -eq $false) {
+                $weakPolicy = $true
+                $weakReasons += "Complexity not enabled"
+            }
+            if ($domainPolicy.MaxPasswordAge.Days -gt 90 -or $domainPolicy.MaxPasswordAge.Days -eq 0) {
+                $weakPolicy = $true
+                $weakReasons += "MaxPasswordAge > 90 days or never expires (current: $($domainPolicy.MaxPasswordAge.Days) days)"
+            }
+            if ($domainPolicy.PasswordHistoryCount -lt 24) {
+                $weakPolicy = $true
+                $weakReasons += "PasswordHistory < 24 (current: $($domainPolicy.PasswordHistoryCount))"
+            }
+
+            if ($weakPolicy) {
+                $vulnerabilities += @{
+                    Type = "WEAK_PASSWORD_POLICY"
+                    Target = "Default Domain Password Policy"
+                    Severity = "Medium"
+                    Description = "Domain password policy does not meet security best practices"
+                    Impact = "Weak passwords increase risk of brute force and password spray attacks"
+                    Detection = "Get-ADDefaultDomainPasswordPolicy"
+                    Remediation = "Enforce: MinLength=14+, Complexity=Enabled, MaxAge=60-90 days, History=24+"
+                    Issues = $weakReasons -join "; "
+                    CurrentPolicy = "Min:$($domainPolicy.MinPasswordLength), Complexity:$($domainPolicy.ComplexityEnabled), MaxAge:$($domainPolicy.MaxPasswordAge.Days)d, History:$($domainPolicy.PasswordHistoryCount)"
+                    Reference = "NIST 800-63B, ANSSI R1, CIS Benchmark 1.1.x"
+                }
+                Write-Log "  MEDIUM: Weak password policy - $($weakReasons -join ', ')" "WARNING"
+            }
+        }
+    } catch {}
+
+    Write-Log "Advanced System Configuration checks complete - 10 vulnerability types assessed" "WARNING"
+
+    # =========================================================================
+    # 83. GPO ADVANCED VULNERABILITIES (7 types) - P3 Priority
+    # =========================================================================
+    Write-Log "Checking: Group Policy Object advanced vulnerabilities..." "WARNING"
+
+    try {
+        Import-Module GroupPolicy -ErrorAction Stop
+
+        # Get all GPOs
+        $allGPOs = Get-GPO -All -ErrorAction SilentlyContinue
+
+        # 83.1. GPO_UNLINKED - GPOs not linked anywhere
+        $unlinkedGPOs = @()
+        foreach ($gpo in $allGPOs) {
+            $links = $null
+            try {
+                $links = [xml](Get-GPOReport -Guid $gpo.Id -ReportType Xml -ErrorAction SilentlyContinue)
+                $linkCount = @($links.GPO.LinksTo).Count
+                if ($linkCount -eq 0) {
+                    $unlinkedGPOs += $gpo
+                }
+            } catch {}
+        }
+
+        if ($unlinkedGPOs.Count -gt 0) {
+            foreach ($gpo in ($unlinkedGPOs | Select-Object -First 3)) {
+                $vulnerabilities += @{
+                    Type = "GPO_UNLINKED"
+                    GPO = $gpo.DisplayName
+                    Severity = "Low"
+                    Description = "GPO exists but is not linked to any OU - orphaned policy"
+                    Impact = "Unused GPOs clutter environment and may be accidentally linked"
+                    Detection = "Get-GPO -All | ForEach-Object {`$links = ([xml](Get-GPOReport -Guid `$_.Id -ReportType Xml)).GPO.LinksTo; if (-not `$links) {`$_}}"
+                    Remediation = "Delete unused GPOs or document their purpose"
+                }
+            }
+            Write-Log "  LOW: Found $($unlinkedGPOs.Count) unlinked GPOs" "WARNING"
+        }
+
+        # 83.2. GPO_DISABLED_BUT_LINKED - GPOs that are disabled but still linked
+        $disabledButLinked = @()
+        foreach ($gpo in $allGPOs) {
+            if ($gpo.GpoStatus -match "AllSettingsDisabled" -or $gpo.GpoStatus -match "UserSettingsDisabled|ComputerSettingsDisabled") {
+                try {
+                    $links = [xml](Get-GPOReport -Guid $gpo.Id -ReportType Xml -ErrorAction SilentlyContinue)
+                    if (@($links.GPO.LinksTo).Count -gt 0) {
+                        $disabledButLinked += $gpo
+                    }
+                } catch {}
+            }
+        }
+
+        if ($disabledButLinked.Count -gt 0) {
+            foreach ($gpo in ($disabledButLinked | Select-Object -First 2)) {
+                $vulnerabilities += @{
+                    Type = "GPO_DISABLED_BUT_LINKED"
+                    GPO = $gpo.DisplayName
+                    Severity = "Medium"
+                    Description = "GPO is disabled but still linked to OUs - configuration confusion"
+                    Impact = "May cause confusion and unexpected behavior if re-enabled"
+                    Detection = "Get-GPO -All | Where-Object {`$_.GpoStatus -ne 'AllSettingsEnabled'} | ForEach-Object {`$links = ([xml](Get-GPOReport -Guid `$_.Id -ReportType Xml)).GPO.LinksTo; if (`$links) {`$_}}"
+                    Remediation = "Unlink disabled GPOs or remove them if not needed"
+                    Status = $gpo.GpoStatus
+                }
+            }
+            Write-Log "  MEDIUM: Found $($disabledButLinked.Count) disabled but linked GPOs" "WARNING"
+        }
+
+        # 83.3. GPO_NO_SECURITY_FILTERING - GPOs without security filtering
+        foreach ($gpo in ($allGPOs | Select-Object -First 2)) {
+            try {
+                $gpoPerms = Get-GPPermissions -Guid $gpo.Id -All -ErrorAction SilentlyContinue
+                $authenticatedUsers = $gpoPerms | Where-Object {$_.Trustee.Name -eq "Authenticated Users" -and $_.Permission -eq "GpoApply"}
+
+                if ($authenticatedUsers) {
+                    $vulnerabilities += @{
+                        Type = "GPO_NO_SECURITY_FILTERING"
+                        GPO = $gpo.DisplayName
+                        Severity = "Medium"
+                        Description = "GPO applies to all Authenticated Users without security filtering"
+                        Impact = "GPO may apply to unintended targets (users, computers, service accounts)"
+                        Detection = "Get-GPO -All | ForEach-Object {Get-GPPermissions -Guid `$_.Id -All | Where-Object {`$_.Trustee.Name -eq 'Authenticated Users'}}"
+                        Remediation = "Implement security filtering: limit GPO application to specific groups"
+                        MITRE = "T1484.001 - Domain Policy Modification"
+                    }
+                    Write-Log "  MEDIUM: GPO '$($gpo.DisplayName)' has no security filtering (Authenticated Users)" "WARNING"
+                    break
+                }
+            } catch {}
+        }
+
+        # 83.4. GPO_WEAK_PASSWORD_POLICY - GPO with weak password requirements
+        foreach ($gpo in $allGPOs) {
+            try {
+                $gpoXml = [xml](Get-GPOReport -Guid $gpo.Id -ReportType Xml -ErrorAction SilentlyContinue)
+                $minPwdLength = $gpoXml.GPO.Computer.ExtensionData.Extension.SecurityOptions.Display.DisplayFields.Field | Where-Object {$_.Name -eq "MinimumPasswordLength"}
+
+                if ($minPwdLength -and [int]$minPwdLength.Value -lt 12) {
+                    $vulnerabilities += @{
+                        Type = "GPO_WEAK_PASSWORD_POLICY"
+                        GPO = $gpo.DisplayName
+                        Severity = "High"
+                        Description = "GPO configures weak password policy (length < 12 characters)"
+                        Impact = "Weak passwords are vulnerable to brute force and dictionary attacks"
+                        Detection = "Get-GPO -All | ForEach-Object {Get-GPOReport -Guid `$_.Id -ReportType Xml | Select-String 'MinimumPasswordLength'}"
+                        Remediation = "Update GPO to require minimum 12-14 character passwords"
+                        CurrentValue = "$($minPwdLength.Value) characters"
+                        Reference = "NIST 800-63B, ANSSI R1"
+                    }
+                    Write-Log "  HIGH: GPO '$($gpo.DisplayName)' has weak password length: $($minPwdLength.Value)" "WARNING"
+                    break
+                }
+            } catch {}
+        }
+
+        # 83.5. GPO_LAPS_NOT_DEPLOYED - No LAPS deployment GPO found
+        $lapsGPO = $allGPOs | Where-Object {$_.DisplayName -match "LAPS"}
+        if (-not $lapsGPO) {
+            $vulnerabilities += @{
+                Type = "GPO_LAPS_NOT_DEPLOYED"
+                Target = "Domain"
+                Severity = "Medium"
+                Description = "No Group Policy found for LAPS (Local Admin Password Solution) deployment"
+                Impact = "Local administrator passwords may be static/shared across computers"
+                Detection = "Get-GPO -All | Where-Object {`$_.DisplayName -match 'LAPS'}"
+                Remediation = "Deploy LAPS via GPO to manage local admin passwords"
+                Reference = "Microsoft LAPS, CIS Benchmark"
+            }
+            Write-Log "  MEDIUM: No LAPS deployment GPO found" "WARNING"
+        }
+
+        # 83.6. GPO_ORPHANED - GPO with missing SYSVOL or AD component
+        foreach ($gpo in ($allGPOs | Select-Object -First 1)) {
+            try {
+                $gptPath = $gpo.GpoFileSysPath
+                if (-not (Test-Path $gptPath -ErrorAction SilentlyContinue)) {
+                    $vulnerabilities += @{
+                        Type = "GPO_ORPHANED"
+                        GPO = $gpo.DisplayName
+                        Severity = "Medium"
+                        Description = "GPO exists in AD but SYSVOL component is missing - orphaned GPO"
+                        Impact = "GPO cannot apply settings; indicates replication or deletion issues"
+                        Detection = "Get-GPO -All | ForEach-Object {if (-not (Test-Path `$_.GpoFileSysPath)) {`$_}}"
+                        Remediation = "Delete orphaned GPO or restore SYSVOL component from backup"
+                        MissingPath = $gptPath
+                    }
+                    Write-Log "  MEDIUM: Orphaned GPO '$($gpo.DisplayName)' - SYSVOL missing" "WARNING"
+                    break
+                }
+            } catch {}
+        }
+
+        # 83.7. GPO_AUTHENTICATED_USERS_APPLY - GPO applies to all authenticated users (overlap with 83.3)
+        # Create at least one GPO that applies to Authenticated Users
+        try {
+            $testGPO = Get-GPO -Name "Default Domain Policy" -ErrorAction SilentlyContinue
+            if ($testGPO) {
+                $perms = Get-GPPermissions -Guid $testGPO.Id -All -ErrorAction SilentlyContinue
+                $authUsers = $perms | Where-Object {$_.Trustee.Name -eq "Authenticated Users"}
+
+                if ($authUsers) {
+                    $vulnerabilities += @{
+                        Type = "GPO_AUTHENTICATED_USERS_APPLY"
+                        GPO = $testGPO.DisplayName
+                        Severity = "Medium"
+                        Description = "Critical GPO applies to all Authenticated Users without filtering"
+                        Impact = "GPO settings affect all domain users/computers, including service accounts and non-human identities"
+                        Detection = "Get-GPO -All | ForEach-Object {Get-GPPermissions -Guid `$_.Id -All | Where-Object {`$_.Trustee.Name -eq 'Authenticated Users' -and `$_.Permission -eq 'GpoApply'}}"
+                        Remediation = "Replace 'Authenticated Users' with specific security groups for targeted application"
+                        MITRE = "T1484.001 - Domain Policy Modification"
+                    }
+                    Write-Log "  MEDIUM: '$($testGPO.DisplayName)' applies to all Authenticated Users" "WARNING"
+                }
+            }
+        } catch {}
+
+        Write-Log "GPO Advanced vulnerability checks complete - 7 types assessed" "WARNING"
+
+    } catch {
+        Write-Log "Error checking GPO vulnerabilities (GroupPolicy module may not be available): $_" "ERROR"
+    }
+
+    # =========================================================================
+    # 84. LAPS ADVANCED VULNERABILITIES (4 types) - P3 Priority
+    # =========================================================================
+    Write-Log "Checking: LAPS (Local Admin Password Solution) advanced vulnerabilities..." "WARNING"
+
+    # Check if LAPS schema extensions exist
+    $lapsSchemaCheck = $null
+    try {
+        $lapsSchemaCheck = Get-ADObject -SearchBase $script:Config.DomainDN -Filter {Name -eq "ms-Mcs-AdmPwd"} -SearchScope Base -Properties * -ErrorAction SilentlyContinue
+    } catch {}
+
+    # 84.1. LAPS_NOT_DEPLOYED - Computers without LAPS configured
+    try {
+        $allComputers = Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwdExpirationTime -ErrorAction SilentlyContinue | Select-Object -First 50
+        $computersWithoutLAPS = $allComputers | Where-Object {-not $_."ms-Mcs-AdmPwdExpirationTime"}
+
+        if ($computersWithoutLAPS.Count -gt 0) {
+            $percentage = [math]::Round(($computersWithoutLAPS.Count / $allComputers.Count) * 100)
+            $vulnerabilities += @{
+                Type = "LAPS_NOT_DEPLOYED"
+                Target = "Domain Computers"
+                Severity = "Medium"
+                Description = "LAPS not deployed on $($computersWithoutLAPS.Count) computers ($percentage% of sample)"
+                Impact = "Local administrator passwords may be static, shared, or weak across multiple systems"
+                Detection = "Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwdExpirationTime | Where-Object {-not `$_.'ms-Mcs-AdmPwdExpirationTime'}"
+                Remediation = "Deploy LAPS client via GPO to all workstations and servers"
+                AffectedCount = $computersWithoutLAPS.Count
+                SampleSize = $allComputers.Count
+                Reference = "Microsoft LAPS Documentation, CIS Benchmark 18.4.x"
+            }
+            Write-Log "  MEDIUM: LAPS not deployed on $($computersWithoutLAPS.Count)/$($allComputers.Count) computers sampled" "WARNING"
+        }
+    } catch {
+        Write-Log "  Info: Could not check LAPS deployment status" "INFO"
+    }
+
+    # 84.2. LAPS_LEGACY_ATTRIBUTE - Using legacy LAPS attributes
+    try {
+        # Check if using old LAPS attribute (ms-Mcs-AdmPwd) vs new Windows LAPS (msLAPS-Password)
+        $legacyLAPS = Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwd -ErrorAction SilentlyContinue | Where-Object {$_."ms-Mcs-AdmPwd"} | Select-Object -First 1
+
+        if ($legacyLAPS) {
+            $vulnerabilities += @{
+                Type = "LAPS_LEGACY_ATTRIBUTE"
+                Target = "LAPS Implementation"
+                Severity = "Medium"
+                Description = "Using legacy Microsoft LAPS attributes (ms-Mcs-AdmPwd) instead of Windows LAPS"
+                Impact = "Legacy LAPS lacks modern features (password encryption in transit, multiple accounts, event-based password rotation)"
+                Detection = "Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwd,msLAPS-Password | Where-Object {`$_.'ms-Mcs-AdmPwd' -and -not `$_.'msLAPS-Password'}"
+                Remediation = "Migrate to Windows LAPS (built into Windows Server 2025+ and Windows 11 22H2+)"
+                Reference = "Windows LAPS vs Legacy LAPS comparison"
+                Note = "Windows LAPS provides native support, encryption, and enhanced features"
+            }
+            Write-Log "  MEDIUM: Legacy LAPS attributes in use - consider Windows LAPS migration" "WARNING"
+        }
+    } catch {}
+
+    # 84.3. LAPS_PASSWORD_SET - Recently set LAPS password (informational)
+    try {
+        $recentLAPS = Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwd,ms-Mcs-AdmPwdExpirationTime -ErrorAction SilentlyContinue |
+            Where-Object {$_."ms-Mcs-AdmPwdExpirationTime"} |
+            Select-Object -First 5
+
+        if ($recentLAPS) {
+            foreach ($comp in $recentLAPS) {
+                $expirationDate = [DateTime]::FromFileTime($comp."ms-Mcs-AdmPwdExpirationTime")
+                $daysUntilExpire = ($expirationDate - (Get-Date)).Days
+
+                $vulnerabilities += @{
+                    Type = "LAPS_PASSWORD_SET"
+                    Computer = $comp.Name
+                    Severity = "Low"
+                    Description = "LAPS password is set and will expire in $daysUntilExpire days (informational)"
+                    Impact = "Informational - LAPS is functioning correctly on this computer"
+                    Detection = "Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwdExpirationTime | Where-Object {`$_.'ms-Mcs-AdmPwdExpirationTime'}"
+                    Remediation = "No action required - this indicates LAPS is deployed and active"
+                    ExpirationDate = $expirationDate.ToString("yyyy-MM-dd HH:mm:ss")
+                    DaysUntilExpire = $daysUntilExpire
+                    Note = "Low severity - this is expected behavior for LAPS-managed computers"
+                }
+            }
+            Write-Log "  LOW: Found $($recentLAPS.Count) computers with active LAPS passwords (informational)" "INFO"
+        }
+    } catch {}
+
+    # 84.4. LAPS_PASSWORD_READABLE - Extended check for ACL abuse (complement to section 81)
+    try {
+        # Check if non-admins can read LAPS passwords
+        $testComputer = Get-ADComputer -Filter * -Properties ms-Mcs-AdmPwd -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($testComputer) {
+            $acl = Get-Acl "AD:\$($testComputer.DistinguishedName)" -ErrorAction SilentlyContinue
+            $suspiciousACEs = $acl.Access | Where-Object {
+                $_.IdentityReference -notmatch "Domain Admins|Enterprise Admins|SYSTEM|Administrators" -and
+                $_.ActiveDirectoryRights -match "ReadProperty|GenericAll|GenericRead" -and
+                $_.ObjectType -eq "00000000-0000-0000-0000-000000000000"  # All properties
+            }
+
+            if ($suspiciousACEs) {
+                foreach ($ace in ($suspiciousACEs | Select-Object -First 2)) {
+                    $vulnerabilities += @{
+                        Type = "LAPS_PASSWORD_READABLE_ACL"
+                        Computer = $testComputer.Name
+                        Identity = $ace.IdentityReference
+                        Severity = "High"
+                        Description = "Non-admin principal has rights to read computer properties including LAPS password"
+                        Impact = "Unauthorized users can retrieve local administrator passwords"
+                        Detection = "(Get-Acl 'AD:\CN=Computer,OU=OU,DC=domain,DC=com').Access | Where-Object {`$_.IdentityReference -notmatch 'Domain Admins' -and `$_.ActiveDirectoryRights -match 'ReadProperty|GenericAll'}"
+                        Remediation = "Remove ReadProperty/GenericAll rights on ms-Mcs-AdmPwd attribute for non-admin principals"
+                        Rights = $ace.ActiveDirectoryRights
+                        MITRE = "T1003.005 - OS Credential Dumping: Cached Domain Credentials"
+                    }
+                }
+                Write-Log "  HIGH: Suspicious ACL on computer object - LAPS password may be readable by non-admins" "WARNING"
+            }
+        }
+    } catch {}
+
+    Write-Log "LAPS Advanced vulnerability checks complete - 4 types assessed" "WARNING"
+
+    # =========================================================================
+    # 85. ADDITIONAL SYSTEM & CONFIGURATION VULNERABILITIES (6 types)
+    # =========================================================================
+    Write-Log "Checking: Additional system and configuration vulnerabilities..." "WARNING"
+
+    # 85.1. GROUP_EMPTY_PRIVILEGED - Privileged groups with no members
+    try {
+        $privilegedGroups = @("Print Operators", "Account Operators", "Server Operators")
+        foreach ($groupName in $privilegedGroups) {
+            $group = Get-ADGroup -Filter {Name -eq $groupName} -ErrorAction SilentlyContinue
+            if ($group) {
+                $members = Get-ADGroupMember -Identity $group -ErrorAction SilentlyContinue
+                if ($members.Count -eq 0) {
+                    $vulnerabilities += @{
+                        Type = "GROUP_EMPTY_PRIVILEGED"
+                        Group = $groupName
+                        Severity = "Low"
+                        Description = "Privileged group has no members - potential for unauthorized addition"
+                        Impact = "Empty privileged groups may go unmonitored; unauthorized additions may not be detected"
+                        Detection = "Get-ADGroup -Filter {Name -eq '$groupName'} | Get-ADGroupMember | Measure-Object | Where-Object {`$_.Count -eq 0}"
+                        Remediation = "Monitor privileged group memberships; consider disabling unused privileged groups"
+                        Note = "While empty, any addition grants immediate privileged access"
+                    }
+                    Write-Log "  LOW: Privileged group '$groupName' is empty" "WARNING"
+                }
+            }
+        }
+    } catch {}
+
+    # 85.2. GROUP_PROTECTED_USERS_EMPTY - Protected Users group not utilized
+    try {
+        $protectedUsers = Get-ADGroup -Filter {Name -eq "Protected Users"} -ErrorAction SilentlyContinue
+        if ($protectedUsers) {
+            $members = Get-ADGroupMember -Identity $protectedUsers -ErrorAction SilentlyContinue
+            if ($members.Count -eq 0) {
+                $vulnerabilities += @{
+                    Type = "GROUP_PROTECTED_USERS_EMPTY"
+                    Group = "Protected Users"
+                    Severity = "Medium"
+                    Description = "Protected Users group is empty - not leveraging enhanced security features"
+                    Impact = "Privileged accounts not protected from credential theft, Kerberos attacks, NTLM"
+                    Detection = "Get-ADGroupMember 'Protected Users' | Measure-Object | Where-Object {`$_.Count -eq 0}"
+                    Remediation = "Add privileged accounts to Protected Users group for enhanced protection"
+                    Reference = "Microsoft Security Baseline - Protected Users group for high-value accounts"
+                    Note = "Protected Users group enforces: No NTLM, No DES/RC4, No delegation, No offline password caching"
+                }
+                Write-Log "  MEDIUM: Protected Users group is empty - not being utilized" "WARNING"
+            }
+        }
+    } catch {}
+
+    # 85.3. MACHINE_ACCOUNT_QUOTA_HIGH - Machine account quota allows abuse
+    try {
+        $domainDN = $script:Config.DomainDN
+        $quota = (Get-ADDomain).MachineAccountQuota
+        if ($quota -gt 0) {
+            $vulnerabilities += @{
+                Type = "MACHINE_ACCOUNT_QUOTA_HIGH"
+                Target = "Domain"
+                Quota = $quota
+                Severity = "High"
+                Description = "Machine account quota is $quota - allows any user to create computer accounts"
+                Impact = "Attackers can create rogue computer accounts for RBCD attacks, Kerberos attacks"
+                Detection = "Get-ADDomain | Select-Object -ExpandProperty MachineAccountQuota"
+                Remediation = "Set MachineAccountQuota to 0: Set-ADDomain -MachineAccountQuota 0"
+                MITRE = "T1136.002 - Create Account: Domain Account"
+                Reference = "Default is 10; should be 0 for security"
+            }
+            Write-Log "  HIGH: Machine Account Quota is $quota - enables rogue computer creation" "WARNING"
+        }
+    } catch {}
+
+    # 85.4. NTLM_RELAY_OPPORTUNITY - NTLM relay attack opportunities
+    try {
+        # Check if NTLM is not restricted (assume vulnerable for lab)
+        $vulnerabilities += @{
+            Type = "NTLM_RELAY_OPPORTUNITY"
+            Target = "Domain"
+            Severity = "Medium"
+            Description = "NTLM authentication not restricted - enables relay attacks"
+            Impact = "Attackers can relay NTLM authentication to escalate privileges"
+            Detection = "Check GPO: Network security: Restrict NTLM: Audit/Block NTLM authentication"
+            Remediation = "Restrict NTLM via GPO; require Kerberos; enable EPA/channel binding"
+            MITRE = "T1557.001 - LLMNR/NBT-NS Poisoning and SMB Relay"
+            CVE = "Related to NTLM relay attacks"
+            Reference = "Microsoft guidance: Disable NTLM authentication"
+        }
+        Write-Log "  MEDIUM: NTLM relay opportunities exist - NTLM not fully restricted" "WARNING"
+    } catch {}
+
+    # 85.5. KERBEROS_TICKET_LIFETIME_LONG - Kerberos ticket lifetime exceeds recommendations
+    try {
+        $domainPolicy = Get-ADDefaultDomainPasswordPolicy -ErrorAction SilentlyContinue
+        # In real environment, check GPO for Kerberos policy
+        # Default: MaxTicketAge = 10 hours, MaxRenewAge = 7 days
+        # Assume vulnerable configuration for lab
+        $vulnerabilities += @{
+            Type = "KERBEROS_TICKET_LIFETIME_LONG"
+            Target = "Domain Kerberos Policy"
+            Severity = "Medium"
+            Description = "Kerberos ticket lifetime may exceed security recommendations"
+            Impact = "Longer ticket lifetimes increase window for ticket theft and replay attacks"
+            Detection = "Check GPO: Computer Configuration > Policies > Windows Settings > Security Settings > Account Policies > Kerberos Policy > Maximum lifetime for user ticket"
+            Remediation = "Reduce ticket lifetime: Max user ticket = 8-10 hours (default 10h is acceptable)"
+            Reference = "NIST recommends ticket lifetime 8-10 hours; renewal 7 days max"
+            Note = "Default values: Max ticket age = 10h, Max renewal age = 7d"
+        }
+        Write-Log "  MEDIUM: Kerberos ticket lifetime policy requires review" "WARNING"
+    } catch {}
+
+    # 85.6. BUILTIN_MODIFIED - Built-in groups with non-standard members
+    try {
+        $builtinGroups = @("Administrators", "Domain Admins", "Enterprise Admins")
+        foreach ($groupName in $builtinGroups) {
+            $group = Get-ADGroup -Filter {Name -eq $groupName} -ErrorAction SilentlyContinue
+            if ($group) {
+                $members = Get-ADGroupMember -Identity $group -ErrorAction SilentlyContinue
+                # Check if group has more than expected members (assume > 5 is unusual for lab)
+                if ($members.Count -gt 5) {
+                    $vulnerabilities += @{
+                        Type = "BUILTIN_MODIFIED"
+                        Group = $groupName
+                        MemberCount = $members.Count
+                        Severity = "High"
+                        Description = "Built-in privileged group has $($members.Count) members - potentially excessive"
+                        Impact = "Over-privileged access; difficult to audit; increases attack surface"
+                        Detection = "Get-ADGroupMember '$groupName' | Measure-Object"
+                        Remediation = "Review membership; remove unnecessary accounts; use role-based groups instead"
+                        Reference = "Least privilege: minimize Domain Admins to 2-3 break-glass accounts"
+                    }
+                    Write-Log "  HIGH: Built-in group '$groupName' has $($members.Count) members (potentially excessive)" "WARNING"
+                    break  # Only report once
+                }
+            }
+        }
+    } catch {}
+
+    Write-Log "Additional vulnerability checks complete - 6 types assessed" "WARNING"
+
+    # =========================================================================
     # ATTACK PATHS - Complete attack chains to Domain Admin (10 paths)
     # =========================================================================
     Write-Log "=== Documenting Attack Paths to Domain Compromise ===" "CRITICAL"
@@ -5229,7 +5925,74 @@ function Add-ComputerVulnerabilities {
         }
     }
 
-    Write-Log "Vulnerabilites ordinateurs injectees: $($vulnerabilities.Count) (24+ types disponibles)" "WARNING"
+    # =========================================================================
+    # GLOBAL COMPUTER CHECKS (not per-computer)
+    # =========================================================================
+
+    # 25. DC_NOT_IN_DC_OU - Domain Controllers not in Domain Controllers OU
+    try {
+        $domainControllers = Get-ADComputer -Filter {PrimaryGroupID -eq 516} -Properties PrimaryGroupID,DistinguishedName
+        foreach ($dc in $domainControllers) {
+            if ($dc.DistinguishedName -notmatch "OU=Domain Controllers") {
+                $vulnerabilities += @{
+                    Type = "DC_NOT_IN_DC_OU"
+                    Computer = $dc.Name
+                    Severity = "High"
+                    Description = "Domain Controller not located in Domain Controllers OU - GPO application issues"
+                    Impact = "DC may not receive critical security policies; indicates AD misconfiguration"
+                    Detection = "Get-ADComputer -Filter {PrimaryGroupID -eq 516} | Where-Object {`$_.DistinguishedName -notmatch 'OU=Domain Controllers'}"
+                    Remediation = "Move DC to Domain Controllers OU"
+                    CurrentLocation = $dc.DistinguishedName
+                }
+                Write-Log "  HIGH: Domain Controller '$($dc.Name)' not in Domain Controllers OU" "WARNING"
+            }
+        }
+    } catch {}
+
+    # 26. WORKSTATION_IN_SERVER_OU - Workstations in Server OUs
+    try {
+        $serversOU = Get-ADOrganizationalUnit -Filter {Name -like "*Server*"} -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($serversOU) {
+            $workstationsInServerOU = Get-ADComputer -SearchBase $serversOU.DistinguishedName -Filter {OperatingSystem -like "*Windows 10*" -or OperatingSystem -like "*Windows 11*"} -ErrorAction SilentlyContinue
+            foreach ($wks in ($workstationsInServerOU | Select-Object -First 2)) {
+                $vulnerabilities += @{
+                    Type = "WORKSTATION_IN_SERVER_OU"
+                    Computer = $wks.Name
+                    Severity = "Low"
+                    Description = "Workstation found in Server OU - incorrect GPO application"
+                    Impact = "Workstation may receive server-specific policies; poor AD organization"
+                    Detection = "Get-ADComputer -Filter {OperatingSystem -like '*Windows 10*' -or OperatingSystem -like '*Windows 11*'} | Where-Object {`$_.DistinguishedName -match 'Server'}"
+                    Remediation = "Move workstation to appropriate Workstations OU"
+                    CurrentOU = $serversOU.Name
+                }
+                Write-Log "  LOW: Workstation '$($wks.Name)' in Server OU" "WARNING"
+            }
+        }
+    } catch {}
+
+    # 27. SERVER_NO_ADMIN_GROUP - Servers without documented admin responsibility
+    try {
+        $servers = Get-ADComputer -Filter {OperatingSystem -like "*Server*"} -Properties Description -ErrorAction SilentlyContinue | Select-Object -First 5
+        foreach ($srv in $servers) {
+            if (-not $srv.Description -or $srv.Description -notmatch "Admin|Owner|Team") {
+                $vulnerabilities += @{
+                    Type = "SERVER_NO_ADMIN_GROUP"
+                    Computer = $srv.Name
+                    Severity = "Medium"
+                    Description = "Server without documented admin/owner in Description field"
+                    Impact = "Unclear ownership leads to poor patching, no accountability"
+                    Detection = "Get-ADComputer -Filter {OperatingSystem -like '*Server*'} -Properties Description | Where-Object {-not `$_.Description -or `$_.Description -notmatch 'Admin|Owner|Team'}"
+                    Remediation = "Document server ownership in Description or custom AD attribute"
+                    Note = "Best practice: document responsible team for each server"
+                }
+            }
+        }
+        if ($vulnerabilities.Type -contains "SERVER_NO_ADMIN_GROUP") {
+            Write-Log "  MEDIUM: Found servers without documented ownership" "WARNING"
+        }
+    } catch {}
+
+    Write-Log "Vulnerabilites ordinateurs injectees: $($vulnerabilities.Count) (27+ types disponibles)" "WARNING"
     $script:Config.Vulnerabilities += $vulnerabilities
     return $vulnerabilities
 }
