@@ -1,0 +1,689 @@
+﻿{
+    "metadata":  {
+                     "date":  "2026-01-31 23:07:57",
+                     "domain":  "aza-me.cc",
+                     "collector_version":  "v1.2.6",
+                     "total_instances":  8239,
+                     "total_types":  120
+                 },
+    "categories":  {
+                       "Passwords":  {
+                                         "vulnerabilities":  [
+                                                                 {
+                                                                     "count":  3,
+                                                                     "type":  "PASSWORD_IN_DESCRIPTION",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  39,
+                                                                     "type":  "PASSWORD_NEVER_EXPIRES",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  23,
+                                                                     "type":  "PASSWORD_NOT_REQUIRED",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  541,
+                                                                     "type":  "PASSWORD_CLEARTEXT_STORAGE",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  535,
+                                                                     "type":  "PASSWORD_DICT_ATTACK_RISK",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  2,
+                                                                     "type":  "PASSWORD_DICT_ATTACK_RISK",
+                                                                     "severity":  "high"
+                                                                 }
+                                                             ],
+                                         "total_instances":  18,
+                                         "count":  6
+                                     },
+                       "GPO":  {
+                                   "vulnerabilities":  [
+                                                           {
+                                                               "count":  1,
+                                                               "type":  "GPO_UNLINKED",
+                                                               "severity":  "low"
+                                                           },
+                                                           {
+                                                               "count":  1,
+                                                               "type":  "GPO_WEAK_PASSWORD_POLICY",
+                                                               "severity":  "medium"
+                                                           },
+                                                           {
+                                                               "count":  6,
+                                                               "type":  "GPO_WEAK_PERMISSIONS",
+                                                               "severity":  "medium"
+                                                           },
+                                                           {
+                                                               "count":  7,
+                                                               "type":  "GPO_ORPHANED",
+                                                               "severity":  "medium"
+                                                           },
+                                                           {
+                                                               "count":  1,
+                                                               "type":  "GPO_LINK_POISONING",
+                                                               "severity":  "medium"
+                                                           },
+                                                           {
+                                                               "count":  12,
+                                                               "type":  "GPO_MODIFY_RIGHTS",
+                                                               "severity":  "high"
+                                                           },
+                                                           {
+                                                               "count":  0,
+                                                               "type":  "GPO_MODIFY_RIGHTS",
+                                                               "severity":  "high"
+                                                           }
+                                                       ],
+                                   "total_instances":  21,
+                                   "count":  7
+                               },
+                       "ADCS_Certificates":  {
+                                                 "vulnerabilities":  [
+                                                                         {
+                                                                             "count":  0,
+                                                                             "type":  "ESC5_PKI_OBJECT_ACL",
+                                                                             "severity":  "medium"
+                                                                         },
+                                                                         {
+                                                                             "count":  0,
+                                                                             "type":  "ESC4_VULNERABLE_TEMPLATE_ACL",
+                                                                             "severity":  "critical"
+                                                                         },
+                                                                         {
+                                                                             "count":  4,
+                                                                             "type":  "ESC3_ENROLLMENT_AGENT",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  0,
+                                                                             "type":  "ESC6_EDITF_FLAG",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  16,
+                                                                             "type":  "ESC9_NO_SECURITY_EXTENSION",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  0,
+                                                                             "type":  "ESC8_HTTP_ENROLLMENT",
+                                                                             "severity":  "medium"
+                                                                         },
+                                                                         {
+                                                                             "count":  0,
+                                                                             "type":  "ESC7_CA_VULNERABLE_ACL",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  0,
+                                                                             "type":  "ESC10_WEAK_CERTIFICATE_MAPPING",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  4,
+                                                                             "type":  "ESC1_VULNERABLE_TEMPLATE",
+                                                                             "severity":  "critical"
+                                                                         },
+                                                                         {
+                                                                             "count":  1,
+                                                                             "type":  "ESC1_VULNERABLE_TEMPLATE",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  1,
+                                                                             "type":  "ESC11_ICERT_REQUEST_ENFORCEMENT",
+                                                                             "severity":  "medium"
+                                                                         },
+                                                                         {
+                                                                             "count":  4,
+                                                                             "type":  "ESC3_ENROLLMENT_AGENT",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  3,
+                                                                             "type":  "ESC2_ANY_PURPOSE",
+                                                                             "severity":  "high"
+                                                                         },
+                                                                         {
+                                                                             "count":  3,
+                                                                             "type":  "ESC2_ANY_PURPOSE",
+                                                                             "severity":  "high"
+                                                                         }
+                                                                     ],
+                                                 "total_instances":  42,
+                                                 "count":  14
+                                             },
+                       "Groups":  {
+                                      "vulnerabilities":  [
+                                                              {
+                                                                  "count":  1,
+                                                                  "type":  "OVERSIZED_GROUP_HIGH",
+                                                                  "severity":  "medium"
+                                                              },
+                                                              {
+                                                                  "count":  1,
+                                                                  "type":  "GROUP_PROTECTED_USERS_EMPTY",
+                                                                  "severity":  "medium"
+                                                              },
+                                                              {
+                                                                  "count":  3,
+                                                                  "type":  "OVERSIZED_GROUP_HIGH",
+                                                                  "severity":  "high"
+                                                              },
+                                                              {
+                                                                  "count":  11,
+                                                                  "type":  "SERVER_OPERATORS_MEMBER",
+                                                                  "severity":  "high"
+                                                              },
+                                                              {
+                                                                  "count":  19,
+                                                                  "type":  "PRINT_OPERATORS_MEMBER",
+                                                                  "severity":  "high"
+                                                              },
+                                                              {
+                                                                  "count":  3,
+                                                                  "type":  "GROUP_EXCESSIVE_MEMBERS",
+                                                                  "severity":  "medium"
+                                                              },
+                                                              {
+                                                                  "count":  4,
+                                                                  "type":  "BUILTIN_MODIFIED",
+                                                                  "severity":  "high"
+                                                              },
+                                                              {
+                                                                  "count":  20,
+                                                                  "type":  "BACKUP_OPERATORS_MEMBER",
+                                                                  "severity":  "high"
+                                                              },
+                                                              {
+                                                                  "count":  3,
+                                                                  "type":  "DANGEROUS_GROUP_NESTING",
+                                                                  "severity":  "medium"
+                                                              },
+                                                              {
+                                                                  "count":  6,
+                                                                  "type":  "GROUP_EXCESSIVE_MEMBERS",
+                                                                  "severity":  "medium"
+                                                              },
+                                                              {
+                                                                  "count":  4,
+                                                                  "type":  "DNS_ADMINS_MEMBER",
+                                                                  "severity":  "high"
+                                                              }
+                                                          ],
+                                      "total_instances":  33,
+                                      "count":  11
+                                  },
+                       "Attack_Paths":  {
+                                            "vulnerabilities":  [
+                                                                    {
+                                                                        "count":  1,
+                                                                        "type":  "PATH_COMPUTER_TAKEOVER",
+                                                                        "severity":  "high"
+                                                                    },
+                                                                    {
+                                                                        "count":  19,
+                                                                        "type":  "PATH_SERVICE_TO_DA",
+                                                                        "severity":  "critical"
+                                                                    },
+                                                                    {
+                                                                        "count":  20,
+                                                                        "type":  "PATH_ASREP_TO_ADMIN",
+                                                                        "severity":  "high"
+                                                                    },
+                                                                    {
+                                                                        "count":  1,
+                                                                        "type":  "PATH_CERTIFICATE_ESC",
+                                                                        "severity":  "critical"
+                                                                    }
+                                                                ],
+                                            "total_instances":  12,
+                                            "count":  4
+                                        },
+                       "Accounts":  {
+                                        "vulnerabilities":  [
+                                                                {
+                                                                    "count":  22,
+                                                                    "type":  "PRIVILEGED_ACCOUNT_SPN",
+                                                                    "severity":  "high"
+                                                                },
+                                                                {
+                                                                    "count":  42,
+                                                                    "type":  "LOCKED_ACCOUNT_ADMIN",
+                                                                    "severity":  "high"
+                                                                },
+                                                                {
+                                                                    "count":  4,
+                                                                    "type":  "TEST_ACCOUNT",
+                                                                    "severity":  "medium"
+                                                                },
+                                                                {
+                                                                    "count":  15,
+                                                                    "type":  "SHARED_ACCOUNT",
+                                                                    "severity":  "medium"
+                                                                },
+                                                                {
+                                                                    "count":  2,
+                                                                    "type":  "DISABLED_ACCOUNT_IN_ADMIN_GROUP",
+                                                                    "severity":  "high"
+                                                                },
+                                                                {
+                                                                    "count":  20,
+                                                                    "type":  "ACCOUNT_OPERATORS_MEMBER",
+                                                                    "severity":  "high"
+                                                                },
+                                                                {
+                                                                    "count":  3,
+                                                                    "type":  "EXPIRED_ACCOUNT_IN_ADMIN_GROUP",
+                                                                    "severity":  "high"
+                                                                },
+                                                                {
+                                                                    "count":  45,
+                                                                    "type":  "EXCESSIVE_PRIVILEGED_ACCOUNTS",
+                                                                    "severity":  "medium"
+                                                                }
+                                                            ],
+                                        "total_instances":  24,
+                                        "count":  8
+                                    },
+                       "Delegation":  {
+                                          "vulnerabilities":  [
+                                                                  {
+                                                                      "count":  12,
+                                                                      "type":  "SENSITIVE_DELEGATION",
+                                                                      "severity":  "critical"
+                                                                  },
+                                                                  {
+                                                                      "count":  20,
+                                                                      "type":  "UNCONSTRAINED_DELEGATION",
+                                                                      "severity":  "critical"
+                                                                  },
+                                                                  {
+                                                                      "count":  1,
+                                                                      "type":  "PATH_DELEGATION_CHAIN",
+                                                                      "severity":  "high"
+                                                                  },
+                                                                  {
+                                                                      "count":  7,
+                                                                      "type":  "COMPUTER_UNCONSTRAINED_DELEGATION",
+                                                                      "severity":  "critical"
+                                                                  },
+                                                                  {
+                                                                      "count":  1,
+                                                                      "type":  "CONSTRAINED_DELEGATION",
+                                                                      "severity":  "high"
+                                                                  }
+                                                              ],
+                                          "total_instances":  15,
+                                          "count":  5
+                                      },
+                       "Permissions_ACL":  {
+                                               "vulnerabilities":  [
+                                                                       {
+                                                                           "count":  90,
+                                                                           "type":  "ACL_WRITE_PROPERTY_EXTENDED",
+                                                                           "severity":  "medium"
+                                                                       },
+                                                                       {
+                                                                           "count":  3,
+                                                                           "type":  "ACL_USER_FORCE_CHANGE_PASSWORD",
+                                                                           "severity":  "medium"
+                                                                       },
+                                                                       {
+                                                                           "count":  790,
+                                                                           "type":  "ACL_WRITEOWNER",
+                                                                           "severity":  "high"
+                                                                       },
+                                                                       {
+                                                                           "count":  790,
+                                                                           "type":  "ACL_WRITEDACL",
+                                                                           "severity":  "high"
+                                                                       },
+                                                                       {
+                                                                           "count":  790,
+                                                                           "type":  "ACL_SELF_MEMBERSHIP",
+                                                                           "severity":  "high"
+                                                                       },
+                                                                       {
+                                                                           "count":  1,
+                                                                           "type":  "ACL_DS_REPLICATION_GET_CHANGES",
+                                                                           "severity":  "critical"
+                                                                       },
+                                                                       {
+                                                                           "count":  1,
+                                                                           "type":  "ACL_COMPUTER_WRITE_VALIDATED_DNS",
+                                                                           "severity":  "medium"
+                                                                       },
+                                                                       {
+                                                                           "count":  790,
+                                                                           "type":  "ACL_GENERICALL",
+                                                                           "severity":  "high"
+                                                                       },
+                                                                       {
+                                                                           "count":  3,
+                                                                           "type":  "ACL_FORCECHANGEPASSWORD",
+                                                                           "severity":  "medium"
+                                                                       }
+                                                                   ],
+                                               "total_instances":  27,
+                                               "count":  9
+                                           },
+                       "Computers":  {
+                                         "vulnerabilities":  [
+                                                                 {
+                                                                     "count":  4,
+                                                                     "type":  "COMPUTER_OS_OBSOLETE_XP",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  0,
+                                                                     "type":  "COMPUTER_PASSWORD_OLD",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  1,
+                                                                     "type":  "COMPUTER_OS_OBSOLETE_2008",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  2,
+                                                                     "type":  "COMPUTER_OS_OBSOLETE_VISTA",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  24,
+                                                                     "type":  "COMPUTER_PRE_CREATED",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  18,
+                                                                     "type":  "COMPUTER_WITH_SPNS",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  1,
+                                                                     "type":  "COMPUTER_WRONG_OU",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  3,
+                                                                     "type":  "COMPUTER_RBCD",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  10,
+                                                                     "type":  "COMPUTER_WEAK_ENCRYPTION",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  3,
+                                                                     "type":  "COMPUTER_OS_OBSOLETE_2003",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  21,
+                                                                     "type":  "COMPUTER_DESCRIPTION_SENSITIVE",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  0,
+                                                                     "type":  "COMPUTER_DISABLED_NOT_DELETED",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  95,
+                                                                     "type":  "COMPUTER_ACL_ABUSE",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  5,
+                                                                     "type":  "COMPUTER_ADMIN_COUNT",
+                                                                     "severity":  "low"
+                                                                 },
+                                                                 {
+                                                                     "count":  5,
+                                                                     "type":  "COMPUTER_IN_ADMIN_GROUP",
+                                                                     "severity":  "critical"
+                                                                 },
+                                                                 {
+                                                                     "count":  13,
+                                                                     "type":  "COMPUTER_NO_BITLOCKER",
+                                                                     "severity":  "high"
+                                                                 },
+                                                                 {
+                                                                     "count":  1,
+                                                                     "type":  "COMPUTER_NO_LAPS",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  12,
+                                                                     "type":  "COMPUTER_LEGACY_PROTOCOL",
+                                                                     "severity":  "medium"
+                                                                 },
+                                                                 {
+                                                                     "count":  69,
+                                                                     "type":  "COMPUTER_NEVER_LOGGED_ON",
+                                                                     "severity":  "medium"
+                                                                 }
+                                                             ],
+                                         "total_instances":  57,
+                                         "count":  19
+                                     },
+                       "Service_Accounts":  {
+                                                "vulnerabilities":  [
+                                                                        {
+                                                                            "count":  19,
+                                                                            "type":  "SERVICE_ACCOUNT_PRIVILEGED",
+                                                                            "severity":  "critical"
+                                                                        },
+                                                                        {
+                                                                            "count":  2,
+                                                                            "type":  "SERVICE_ACCOUNT_WEAK_ENCRYPTION",
+                                                                            "severity":  "medium"
+                                                                        },
+                                                                        {
+                                                                            "count":  33,
+                                                                            "type":  "SERVICE_ACCOUNT_WITH_SPN",
+                                                                            "severity":  "medium"
+                                                                        },
+                                                                        {
+                                                                            "count":  36,
+                                                                            "type":  "SERVICE_ACCOUNT_OLD_PASSWORD",
+                                                                            "severity":  "high"
+                                                                        },
+                                                                        {
+                                                                            "count":  27,
+                                                                            "type":  "SERVICE_ACCOUNT_INTERACTIVE",
+                                                                            "severity":  "high"
+                                                                        },
+                                                                        {
+                                                                            "count":  3,
+                                                                            "type":  "SERVICE_ACCOUNT_NAMING",
+                                                                            "severity":  "low"
+                                                                        },
+                                                                        {
+                                                                            "count":  22,
+                                                                            "type":  "SERVICE_ACCOUNT_NO_PREAUTH",
+                                                                            "severity":  "high"
+                                                                        }
+                                                                    ],
+                                                "total_instances":  21,
+                                                "count":  7
+                                            },
+                       "Kerberos":  {
+                                        "vulnerabilities":  [
+                                                                {
+                                                                    "count":  530,
+                                                                    "type":  "KERBEROS_AES_DISABLED",
+                                                                    "severity":  "high"
+                                                                },
+                                                                {
+                                                                    "count":  5,
+                                                                    "type":  "KERBEROS_RC4_FALLBACK",
+                                                                    "severity":  "medium"
+                                                                },
+                                                                {
+                                                                    "count":  23,
+                                                                    "type":  "PATH_KERBEROASTING_TO_DA",
+                                                                    "severity":  "critical"
+                                                                },
+                                                                {
+                                                                    "count":  16,
+                                                                    "type":  "ADMIN_ASREP_ROASTABLE",
+                                                                    "severity":  "critical"
+                                                                },
+                                                                {
+                                                                    "count":  25,
+                                                                    "type":  "ASREP_ROASTING_RISK",
+                                                                    "severity":  "critical"
+                                                                },
+                                                                {
+                                                                    "count":  34,
+                                                                    "type":  "KERBEROASTING_RISK",
+                                                                    "severity":  "high"
+                                                                }
+                                                            ],
+                                        "total_instances":  18,
+                                        "count":  6
+                                    },
+                       "Network":  {
+                                       "vulnerabilities":  [
+                                                               {
+                                                                   "count":  92,
+                                                                   "type":  "WRITESPN_ABUSE",
+                                                                   "severity":  "medium"
+                                                               },
+                                                               {
+                                                                   "count":  1,
+                                                                   "type":  "NTLM_RELAY_OPPORTUNITY",
+                                                                   "severity":  "medium"
+                                                               },
+                                                               {
+                                                                   "count":  95,
+                                                                   "type":  "LAPS_PASSWORD_SET",
+                                                                   "severity":  "low"
+                                                               }
+                                                           ],
+                                       "total_instances":  9,
+                                       "count":  3
+                                   },
+                       "Configuration":  {
+                                             "vulnerabilities":  [
+                                                                     {
+                                                                         "count":  2,
+                                                                         "type":  "SERVER_NO_ADMIN_GROUP",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  55,
+                                                                         "type":  "SMARTCARD_NOT_REQUIRED",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  21,
+                                                                         "type":  "REVERSIBLE_ENCRYPTION",
+                                                                         "severity":  "critical"
+                                                                     },
+                                                                     {
+                                                                         "count":  1,
+                                                                         "type":  "REPLICA_DIRECTORY_CHANGES",
+                                                                         "severity":  "critical"
+                                                                     },
+                                                                     {
+                                                                         "count":  40,
+                                                                         "type":  "REPLICATION_RIGHTS",
+                                                                         "severity":  "high"
+                                                                     },
+                                                                     {
+                                                                         "count":  2,
+                                                                         "type":  "WEAK_ENCRYPTION_RC4",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  1,
+                                                                         "type":  "WEAK_PASSWORD_POLICY",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  19,
+                                                                         "type":  "WEAK_ENCRYPTION_FLAG",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  541,
+                                                                         "type":  "UNIX_USER_PASSWORD",
+                                                                         "severity":  "critical"
+                                                                     },
+                                                                     {
+                                                                         "count":  21,
+                                                                         "type":  "WEAK_ENCRYPTION_DES",
+                                                                         "severity":  "high"
+                                                                     },
+                                                                     {
+                                                                         "count":  1,
+                                                                         "type":  "RECYCLE_BIN_DISABLED",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  4,
+                                                                         "type":  "DANGEROUS_BUILTIN_MEMBERSHIP",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  29,
+                                                                         "type":  "DOMAIN_ADMIN_IN_DESCRIPTION",
+                                                                         "severity":  "high"
+                                                                     },
+                                                                     {
+                                                                         "count":  1,
+                                                                         "type":  "ADMINSDHOLDER_BACKDOOR",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  15,
+                                                                         "type":  "ADMIN_COUNT_ORPHANED",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  55,
+                                                                         "type":  "ADMIN_NO_SMARTCARD",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  55,
+                                                                         "type":  "NO_PROTECTED_USERS_MONITORING",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  27,
+                                                                         "type":  "NOT_IN_PROTECTED_USERS",
+                                                                         "severity":  "high"
+                                                                     },
+                                                                     {
+                                                                         "count":  533,
+                                                                         "type":  "NEVER_LOGGED_ON",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  790,
+                                                                         "type":  "EVERYONE_IN_ACL",
+                                                                         "severity":  "medium"
+                                                                     },
+                                                                     {
+                                                                         "count":  1,
+                                                                         "type":  "MACHINE_ACCOUNT_QUOTA_ABUSE",
+                                                                         "severity":  "medium"
+                                                                     }
+                                                                 ],
+                                             "total_instances":  63,
+                                             "count":  21
+                                         }
+                   }
+}
